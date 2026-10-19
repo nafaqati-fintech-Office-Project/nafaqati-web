@@ -1,0 +1,87 @@
+.an-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.an-header h1 {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.an-header p {
+  margin-block-start: 4px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.an-tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.an-month {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: var(--shadow-card);
+}
+
+.an-month span {
+  min-width: 130px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.an-month button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--navy);
+}
+
+.an-month button:hover:not(:disabled) {
+  background: #f3f6fc;
+}
+
+.an-month button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.an-currency {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: var(--shadow-card);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.an-month button:focus-visible,
+.an-currency:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+@media (max-width: 767px) {
+  .an-header h1 {
+    font-size: 22px;
+  }
+}

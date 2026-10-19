@@ -1,0 +1,10 @@
+.fam-head-actions { display: inline-flex; gap: 12px; }
+.fam-budget-sk { display: block; block-size: 36px; border-radius: 10px; }
+.fam-empty { margin: 0; font-size: 14px; color: #6a799b; }
+.fam-status { padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+.fam-status.is-warning { background: #fef3c7; color: #92400e; }
+.fam-status.is-exceeded { background: #fee2e2; color: #b91c1c; }
+.fam-status.is-on_track { background: #dcfce7; color: #15803d; }
+.budget-dot.red { background: #ef4444; }
+.progress-fill.red { background: #ef4444; }
+.fam-budget-total { padding-block-end: 12px; }

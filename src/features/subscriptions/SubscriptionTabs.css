@@ -1,0 +1,16 @@
+.subs-tabs { display: flex; gap: 8px; padding: 4px; border-radius: 16px; background: #eef2fb; }
+.subs-tabs button {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: #475569;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.subs-tabs button.is-active { background: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(30, 107, 255, 0.3); }
+.subs-tabs button:not(.is-active):hover { background: #e3eafa; }
+.subs-tabs button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }

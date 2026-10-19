@@ -1,0 +1,12 @@
+.subs-detail-hero { display: flex; flex-direction: column; align-items: center; gap: 6px; padding-block: 8px 18px; text-align: center; }
+.subs-detail-hero h3 { font-size: 18px; font-weight: 700; color: var(--navy); overflow-wrap: anywhere; }
+.subs-detail-amount { font-size: 26px; font-weight: 800; color: var(--navy); }
+.subs-status { padding: 3px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.subs-status.is-confirmed { background: #dcfce7; color: #15803d; }
+.subs-status.is-detected { background: #fef3c7; color: #b45309; }
+.subs-status.is-ended, .subs-status.is-dismissed { background: #e2e8f0; color: #475569; }
+.subs-detail-list { display: flex; flex-direction: column; margin: 0; }
+.subs-detail-list > div { display: flex; justify-content: space-between; gap: 16px; padding-block: 11px; border-block-start: 1px solid var(--border); font-size: 14px; }
+.subs-detail-list dt { color: var(--muted); }
+.subs-detail-list dd { margin: 0; font-weight: 600; color: var(--navy); text-align: end; }
+.subs-detail-warn { display: flex; align-items: center; gap: 8px; margin-block-start: 14px; padding: 10px 12px; border-radius: 10px; background: #fef3c7; font-size: 13px; color: #92400e; }

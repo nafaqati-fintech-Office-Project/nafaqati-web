@@ -1,0 +1,38 @@
+.subs-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; border-block-end: 1px solid #eef1f7; list-style: none; }
+.subs-row:last-child { border-block-end: none; }
+.subs-row-main {
+  display: flex;
+  flex: 1 1 320px;
+  align-items: center;
+  gap: 14px;
+  min-inline-size: 0;
+  padding: 14px 12px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--navy);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.subs-row-main:hover { background: #f5f8ff; }
+.subs-row-main:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
+.subs-row-text { display: flex; flex: 1; flex-direction: column; gap: 3px; min-inline-size: 0; }
+.subs-row-text strong { font-size: 15px; font-weight: 700; overflow-wrap: anywhere; }
+.subs-row-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: 12.5px; color: var(--muted); }
+.subs-row-amount { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; text-align: end; flex-shrink: 0; }
+.subs-row-amount strong { font-size: 15px; font-weight: 800; white-space: nowrap; }
+.subs-row-amount small { font-size: 12px; color: var(--muted); }
+.is-cancelled .subs-row-text strong, .is-cancelled .subs-row-amount strong { color: #64748b; }
+.is-cancelled .merchant-avatar { filter: grayscale(0.8); opacity: 0.7; }
+.subs-row-actions { display: flex; gap: 8px; padding-inline: 12px 12px; padding-block-end: 12px; }
+.subs-tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 600; }
+.subs-tag.is-warn { background: #fef3c7; color: #b45309; }
+.subs-tag.is-info { background: #e0edff; color: #1757d6; }
+.subs-tag.is-muted { background: #e2e8f0; color: #475569; }
+.subs-confidence { font-weight: 600; }
+.subs-confidence.is-high { color: #15803d; }
+.subs-confidence.is-medium { color: #b45309; }
+.subs-confidence.is-low { color: #dc2626; }
+.subs-confidence::before { content: '•'; margin-inline-end: 6px; color: var(--muted); }
+@media (min-width: 900px) { .subs-row-actions { padding-block-end: 0; } }

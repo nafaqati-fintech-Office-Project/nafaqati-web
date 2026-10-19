@@ -1,0 +1,9 @@
+.subs-insights { padding: 18px; border-radius: 18px; background: #fff; box-shadow: var(--shadow-card); }
+.subs-insights h2 { margin-block-end: 12px; font-size: 15px; font-weight: 700; color: var(--navy); }
+.subs-insights ul { display: flex; flex-direction: column; gap: 14px; margin: 0; padding: 0; list-style: none; }
+.subs-insights li { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: #334155; line-height: 1.45; }
+.subs-insight-icon { display: grid; flex-shrink: 0; place-items: center; inline-size: 28px; block-size: 28px; border-radius: 50%; }
+.subs-insight-icon.is-amber { background: #fef3c7; color: #b45309; }
+.subs-insight-icon.is-rose { background: var(--tint-rose); color: var(--accent-rose); }
+.subs-insight-icon.is-blue { background: #e0edff; color: #1757d6; }
+.subs-insights-ok { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #15803d; }

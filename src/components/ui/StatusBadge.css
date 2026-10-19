@@ -1,0 +1,12 @@
+.status-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.status-pending { background: #fef3c7; color: #b45309; }
+.status-completed { background: #dcfce7; color: #16a34a; }
+.status-failed { background: #fee2e2; color: #dc2626; }
+.status-reversed { background: #e2e8f0; color: #475569; }

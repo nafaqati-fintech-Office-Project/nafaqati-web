@@ -1,0 +1,13 @@
+.goal-progress-track {
+  overflow: hidden;
+  block-size: 8px;
+  border-radius: 999px;
+  background: #eef1f7;
+}
+
+.goal-progress-track span {
+  display: block;
+  block-size: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #14b8a6, var(--primary));
+}

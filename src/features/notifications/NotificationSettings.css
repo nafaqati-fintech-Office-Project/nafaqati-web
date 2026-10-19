@@ -1,0 +1,35 @@
+.notif-settings-hint { margin-block-end: 6px; font-size: 14px; color: #475569; }
+.notif-settings-note { margin-block-end: 14px; padding: 10px 12px; border-radius: 10px; background: #fff7e6; font-size: 13px; color: #92400e; }
+.notif-settings-list { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+.notif-settings-list li { display: flex; align-items: center; gap: 12px; padding-block: 12px; border-block-start: 1px solid var(--border); }
+.notif-settings-list li > div { display: flex; flex: 1; flex-direction: column; gap: 2px; min-inline-size: 0; }
+.notif-settings-list span { font-size: 14px; font-weight: 600; color: var(--navy); }
+.notif-settings-list small { font-size: 12px; color: var(--muted); }
+.notif-always { display: inline-flex; align-items: center; gap: 4px; font-size: 12px !important; font-weight: 500 !important; color: var(--muted) !important; white-space: nowrap; }
+.notif-switch {
+  position: relative;
+  flex-shrink: 0;
+  inline-size: 44px;
+  block-size: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: #cbd5e1;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.notif-switch span {
+  position: absolute;
+  inset-block-start: 3px;
+  inset-inline-start: 3px;
+  inline-size: 18px;
+  block-size: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: inset-inline-start 0.15s;
+}
+.notif-switch.is-on { background: var(--primary); }
+.notif-switch.is-on span { inset-inline-start: 23px; }
+.notif-switch:disabled { opacity: 0.6; cursor: default; }
+.notif-switch:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.notif-settings-error { margin-block-start: 10px; font-size: 13px; color: var(--danger); }

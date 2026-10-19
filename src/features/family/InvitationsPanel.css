@@ -1,0 +1,12 @@
+.fam-invites { display: flex; flex-direction: column; gap: 16px; }
+.fam-invite-block h3 { margin: 0 0 8px; font-size: 14px; color: #1e2e4d; }
+.fam-invite-block ul { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.fam-invite-block li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 12px; background: #f4f7ff; }
+.fam-invite-block li > span:first-child { display: flex; flex-direction: column; gap: 2px; min-inline-size: 0; }
+.fam-invite-block small { font-size: 12px; color: #6a799b; }
+.fam-invite-actions { display: flex; gap: 8px; }
+.fam-invite-block .btn { padding: 6px 14px; font-size: 13px; }
+.fam-myid { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding-block-start: 12px; border-block-start: 1px solid #eff3fb; }
+.fam-myid > span { display: flex; flex-direction: column; gap: 2px; min-inline-size: 0; }
+.fam-myid small { font-size: 12px; color: #6a799b; }
+.fam-myid code { font-size: 12px; color: #1e2e4d; overflow-wrap: anywhere; user-select: all; }

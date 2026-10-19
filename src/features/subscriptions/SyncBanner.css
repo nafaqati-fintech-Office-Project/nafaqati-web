@@ -1,0 +1,6 @@
+.subs-sync { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 14px; font-size: 14px; }
+.subs-sync span { display: flex; flex: 1; flex-direction: column; gap: 2px; }
+.subs-sync small { font-size: 12px; opacity: 0.8; }
+.subs-sync.is-syncing { background: var(--tint-blue); color: #1757d6; }
+.subs-sync.is-failed { background: #fff7e6; color: #92400e; }
+.subs-sync .btn { padding-block: 6px; }

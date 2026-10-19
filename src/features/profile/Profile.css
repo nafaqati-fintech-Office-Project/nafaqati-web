@@ -1,0 +1,56 @@
+.profile-hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eef1f7;
+}
+
+.profile-hero h2 {
+  font-size: 18px;
+  color: var(--navy);
+}
+
+.profile-hero p {
+  font-size: 13px;
+  color: var(--muted);
+  word-break: break-all;
+}
+
+.profile-form .auth-alert {
+  margin: 0 0 16px;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.profile-wide {
+  grid-column: 1 / -1;
+}
+
+.profile-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.profile-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.profile-form input[readonly] {
+  background: #f6f8fd;
+  color: var(--muted);
+}
+
+@media (max-width: 640px) {
+  .profile-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -1,0 +1,18 @@
+.notif-bell { position: relative; }
+.notif-badge {
+  position: absolute;
+  inset-block-start: 3px;
+  inset-inline-end: 1px;
+  box-sizing: border-box;
+  min-inline-size: 18px;
+  block-size: 18px;
+  padding-inline: 5px;
+  border: 2px solid var(--page-bg, #f4f7fe);
+  border-radius: 999px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 14px;
+  text-align: center;
+}

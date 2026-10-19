@@ -1,0 +1,14 @@
+.subs-page { display: flex; flex-direction: column; gap: 18px; box-sizing: border-box; inline-size: 100%; max-inline-size: 1100px; min-inline-size: 0; }
+.subs-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.subs-head h1 { font-size: 26px; font-weight: 800; color: var(--navy); }
+.subs-head p { margin-block-start: 2px; font-size: 14px; color: var(--muted); }
+.subs-top { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 16px; }
+.subs-main { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.subs-col { display: flex; flex-direction: column; gap: 14px; min-inline-size: 0; }
+.subs-loading { display: flex; flex-direction: column; gap: 16px; }
+.subs-loading-note { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #1757d6; }
+.subs-loading-note small { color: var(--muted); }
+.subs-error { padding: 40px 16px; border-radius: 18px; background: #fff; box-shadow: var(--shadow-card); }
+@media (max-width: 899px) {
+  .subs-top, .subs-main { grid-template-columns: minmax(0, 1fr); }
+}

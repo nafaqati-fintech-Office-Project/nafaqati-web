@@ -1,0 +1,106 @@
+.budget-overview {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 2fr;
+  gap: 18px;
+  padding: 20px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: var(--shadow-card);
+}
+
+.budget-overview-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.budget-overview-icon {
+  display: grid;
+  place-items: center;
+  inline-size: 54px;
+  block-size: 54px;
+  border-radius: 14px;
+  background: #e8f0ff;
+  color: var(--primary);
+}
+
+.budget-overview-main span,
+.budget-overview-facts dt {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.budget-overview-main strong {
+  display: block;
+  margin-block-start: 4px;
+  color: var(--navy);
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.budget-overview-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+}
+
+.budget-overview-facts div {
+  min-inline-size: 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.budget-overview-facts dt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.budget-overview-facts dd {
+  margin-block-start: 6px;
+  color: var(--navy);
+  font-weight: 800;
+}
+
+.budget-overview-facts .is-negative {
+  color: var(--danger);
+}
+
+.budget-status {
+  display: inline-flex;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.budget-status.is-good { background: #dcfce7; color: #15803d; }
+.budget-status.is-warning { background: #fef3c7; color: #92400e; }
+.budget-status.is-danger { background: #fee2e2; color: #b91c1c; }
+
+.budget-tracking-note {
+  grid-column: 1 / -1;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f6f8fd;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+@media (max-width: 760px) {
+  .budget-overview {
+    grid-template-columns: 1fr;
+  }
+}
+
+.budget-overview-progress {
+  grid-column: 1 / -1;
+  block-size: 8px;
+  border-radius: 999px;
+  background: #eef1f7;
+  overflow: hidden;
+}
+.budget-overview-progress span { display: block; block-size: 100%; border-radius: inherit; }
+.budget-overview-progress .is-good { background: #16a34a; }
+.budget-overview-progress .is-warning { background: #f59e0b; }
+.budget-overview-progress .is-danger { background: #dc2626; }

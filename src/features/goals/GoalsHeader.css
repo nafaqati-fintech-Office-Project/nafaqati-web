@@ -1,0 +1,42 @@
+.goals-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.goals-head h1 {
+  color: var(--navy);
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.goals-head p {
+  margin-block-start: 4px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.goals-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.goals-demo-tag {
+  padding: 6px 10px;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+@media (max-width: 560px) {
+  .goals-head-actions,
+  .goals-head-actions .btn {
+    inline-size: 100%;
+  }
+}

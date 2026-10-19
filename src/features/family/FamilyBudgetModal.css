@@ -1,0 +1,4 @@
+.fam-budget-form { display: flex; flex-direction: column; gap: 12px; }
+.fam-limit-row { display: grid; grid-template-columns: 1.4fr 1fr auto; gap: 10px; align-items: end; }
+.fam-add-limit { align-self: flex-start; }
+@media (max-width: 480px) { .fam-limit-row { grid-template-columns: 1fr 1fr auto; } }

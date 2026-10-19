@@ -1,0 +1,91 @@
+.budget-category-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(130px, auto) minmax(190px, 0.8fr);
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  border-block-start: 1px solid #eef1f7;
+}
+
+.budget-category-row:first-child {
+  border-block-start: none;
+}
+
+.budget-category-icon {
+  display: grid;
+  place-items: center;
+  inline-size: 40px;
+  block-size: 40px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--category-color) 14%, white);
+  color: var(--category-color);
+}
+
+.budget-category-name,
+.budget-category-limit,
+.budget-category-progress {
+  min-inline-size: 0;
+}
+
+.budget-category-name {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.budget-category-name strong,
+.budget-category-limit strong {
+  color: var(--navy);
+}
+
+.budget-category-name span,
+.budget-category-limit span,
+.budget-progress-label {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.budget-category-limit {
+  text-align: end;
+}
+
+.budget-category-limit strong {
+  display: block;
+  margin-block-start: 2px;
+}
+
+.budget-progress-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.budget-progress-label strong {
+  color: var(--navy);
+}
+
+.budget-progress-track {
+  overflow: hidden;
+  block-size: 8px;
+  margin-block-start: 7px;
+  border-radius: 999px;
+  background: #eef1f7;
+}
+
+.budget-progress-track span {
+  display: block;
+  block-size: 100%;
+  border-radius: inherit;
+}
+
+@media (max-width: 820px) {
+  .budget-category-row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .budget-category-limit,
+  .budget-category-progress {
+    grid-column: 2;
+    text-align: start;
+  }
+}

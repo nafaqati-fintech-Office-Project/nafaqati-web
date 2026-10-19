@@ -1,0 +1,32 @@
+.tabswitch {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 4px;
+  margin-top: 22px;
+  padding: 4px;
+  border-radius: 10px;
+  background: #eef0f5;
+}
+
+.tabswitch-tab {
+  padding: 9px 12px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  transition: background 0.15s, color 0.15s;
+}
+
+.tabswitch-tab.is-active {
+  background: #fff;
+  border-color: #dbe4f7;
+  color: var(--primary);
+}
+
+.tabswitch-tab:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}

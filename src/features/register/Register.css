@@ -1,0 +1,15 @@
+.register-name-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.register-name-row > * {
+  min-width: 0;
+}
+
+@media (max-width: 420px) {
+  .register-name-row {
+    grid-template-columns: 1fr;
+  }
+}

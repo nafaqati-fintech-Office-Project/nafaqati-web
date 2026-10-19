@@ -1,0 +1,41 @@
+.budgets-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.budget-state {
+  min-block-size: 280px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: var(--shadow-card);
+}
+
+.budget-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.budget-sk-head {
+  block-size: 58px;
+  border-radius: 14px;
+}
+
+.budget-sk-card {
+  block-size: 150px;
+  border-radius: 16px;
+}
+
+.budget-archive-note {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #fff7e6;
+  color: #92400e;
+  font-size: 13px;
+}
+
+.budget-actions-row {
+  display: flex;
+  justify-content: flex-end;
+}

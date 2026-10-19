@@ -1,0 +1,9 @@
+.fam-share-form { display: flex; flex-direction: column; gap: 12px; }
+.fam-share-hint { font-size: 12px; color: #6a799b; }
+.fam-share-list { display: flex; flex-direction: column; gap: 6px; max-block-size: 260px; overflow-y: auto; }
+.fam-share-sk { display: block; block-size: 48px; border-radius: 10px; }
+.fam-share-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid #e2e8f8; border-radius: 10px; cursor: pointer; }
+.fam-share-item > span { display: flex; flex: 1; flex-direction: column; min-inline-size: 0; }
+.fam-share-item small { font-size: 12px; color: #6a799b; }
+.fam-share-item.is-picked { border-color: var(--primary); background: #f4f7ff; }
+.fam-share-item:focus-within { outline: 2px solid var(--primary); }

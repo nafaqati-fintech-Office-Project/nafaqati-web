@@ -1,0 +1,42 @@
+.notif-pop {
+  position: absolute;
+  inset-block-start: calc(100% + 8px);
+  /* the app shell (topbar) is not mirrored, so the bell stays at the right edge in Arabic too */
+  right: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  inline-size: 380px;
+  max-inline-size: calc(100vw - 24px);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 14px 40px rgba(15, 27, 61, 0.18);
+}
+.notif-pop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px 10px;
+}
+.notif-pop-head h2 { font-size: 16px; font-weight: 700; color: var(--navy); }
+.notif-pop-head .link-btn:disabled { opacity: 0.45; cursor: default; }
+.notif-pop-body { max-block-size: min(480px, 60vh); overflow-y: auto; padding: 0 6px; }
+.notif-pop-list { display: flex; flex-direction: column; gap: 2px; margin: 0; padding: 0; }
+.notif-pop-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 16px;
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+}
+.notif-pop-foot { padding: 6px 16px 12px; border-block-start: 1px solid var(--border); text-align: center; }
+.notif-pop-foot a { font-size: 14px; font-weight: 600; color: var(--primary); text-decoration: none; }
+.notif-pop-foot a:hover { text-decoration: underline; }
+@media (max-width: 480px) {
+  .notif-bell { position: static; }
+  .notif-pop { position: fixed; inset-block-start: 64px; inset-inline: 12px; inline-size: auto; max-inline-size: none; }
+}

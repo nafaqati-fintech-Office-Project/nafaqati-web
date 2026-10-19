@@ -1,0 +1,56 @@
+.budget-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.budget-head h1 {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.budget-head p {
+  margin-block-start: 4px;
+  color: var(--muted);
+}
+
+.budget-head-actions,
+.budget-month-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.budget-month-nav {
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.budget-month-nav select {
+  min-inline-size: 150px;
+  border: none;
+  background: transparent;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.budget-month-nav select:focus {
+  outline: none;
+}
+
+@media (max-width: 640px) {
+  .budget-head-actions,
+  .budget-month-nav,
+  .budget-head-actions .btn {
+    inline-size: 100%;
+  }
+
+  .budget-month-nav select {
+    flex: 1;
+  }
+}

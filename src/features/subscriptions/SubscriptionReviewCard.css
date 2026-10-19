@@ -1,0 +1,30 @@
+.subs-review-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  justify-content: center;
+  padding: 22px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #fff7ed, var(--tint-rose));
+  box-shadow: var(--shadow-card);
+  min-inline-size: 0;
+}
+.subs-review-top { display: flex; align-items: center; gap: 14px; }
+.subs-review-icon { display: grid; flex-shrink: 0; place-items: center; inline-size: 52px; block-size: 52px; color: var(--accent-amber); }
+.subs-review-label { font-size: 13px; font-weight: 700; color: var(--accent-rose); }
+.subs-review-card:not(.has-items) .subs-review-label { color: var(--navy); }
+.subs-review-count { font-size: 20px; font-weight: 800; color: var(--accent-rose); }
+.subs-review-card:not(.has-items) .subs-review-count { font-size: 14px; font-weight: 500; color: #475569; }
+.subs-review-cta {
+  padding: 11px 16px;
+  border: 1px solid #c9dafb;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--primary);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.subs-review-cta:hover { background: #f3f7ff; }
+.subs-review-cta:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }

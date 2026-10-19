@@ -1,0 +1,4 @@
+.subs-form { display: flex; flex-direction: column; gap: 14px; }
+.subs-form-pair { display: grid; grid-template-columns: 1fr 120px; gap: 12px; }
+.subs-form-pair:has(> :only-child) { grid-template-columns: 1fr; }
+@media (max-width: 480px) { .subs-form-pair { grid-template-columns: 1fr; } }

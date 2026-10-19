@@ -1,0 +1,34 @@
+.analytics {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+
+.analytics-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.analytics-note {
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #fff7e6;
+  font-size: 13px;
+  color: #92400e;
+}
+
+@media (max-width: 1199px) {
+  .analytics-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
