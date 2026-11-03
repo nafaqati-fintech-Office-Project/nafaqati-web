@@ -231,3 +231,90 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.rp-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 10px;
+  background: var(--primary);
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.rp-export:hover:not(:disabled) {
+  background: var(--primary-dark);
+}
+
+.rp-export:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.rp-export:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.rp-print-meta {
+  display: none;
+}
+
+/* "Export PDF" opens the print dialog: print only the report, one column, no app chrome. :has() keeps this to
+   the Reports page, so printing other pages is unchanged. */
+@media print {
+  .app-shell:has(.reports) {
+    background: #fff;
+  }
+
+  .app-shell:has(.reports) .sidebar,
+  .app-shell:has(.reports) .sidebar-overlay,
+  .app-shell:has(.reports) .topbar {
+    display: none;
+  }
+
+  .app-shell:has(.reports) .app-main {
+    margin: 0;
+  }
+
+  .app-shell:has(.reports) .app-content {
+    padding: 0;
+  }
+
+  .reports .rp-export,
+  .reports .an-month button,
+  .reports .an-currency {
+    display: none;
+  }
+
+  .reports .rp-print-meta {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .reports .rp-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .reports .an-card {
+    border: 1px solid #e2e8f0;
+    box-shadow: none;
+    break-inside: avoid;
+  }
+
+  .reports .rp-track span,
+  .reports .rp-split span,
+  .reports .rp-bar-track span,
+  .reports .rp-legend i {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .reports .an-retry {
+    display: none;
+  }
+}

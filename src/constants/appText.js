@@ -1355,6 +1355,9 @@ export const REPORTS_TEXT = {
     prevMonth: 'Previous month',
     nextMonth: 'Next month',
     currency: 'Currency',
+    exportPdf: 'Export PDF',
+    exportHint: 'In the print window, choose "Save as PDF"',
+    printMeta: (currency, date) => `Currency: ${currency} · Generated ${date}`,
     summary: {
       title: 'Monthly spending',
       spent: 'Total spent',
@@ -1416,6 +1419,9 @@ export const REPORTS_TEXT = {
     prevMonth: 'الشهر السابق',
     nextMonth: 'الشهر التالي',
     currency: 'العملة',
+    exportPdf: 'تصدير PDF',
+    exportHint: 'في نافذة الطباعة اختر "حفظ بصيغة PDF"',
+    printMeta: (currency, date) => `العملة: ${currency} · تاريخ الإنشاء ${date}`,
     summary: {
       title: 'الإنفاق الشهري',
       spent: 'إجمالي الإنفاق',

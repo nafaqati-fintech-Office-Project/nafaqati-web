@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, FileDown } from 'lucide-react'
 import { useFormat } from '../../hooks/useFormat.js'
 import { useReports } from '../../hooks/useReports.js'
 import { currentMonth, todayKey } from '../../utils/dateRange.js'
@@ -31,6 +31,21 @@ export default function Reports() {
   const Back = dir === 'rtl' ? ChevronRight : ChevronLeft
   const Forward = dir === 'rtl' ? ChevronLeft : ChevronRight
 
+  // Only a loaded report is exported, so the PDF never has half the data
+  const ready = !comparison.loading && !comparison.error && !trend.loading && !expenses.loading
+
+  // The browser's print dialog saves a PDF; the page title becomes the suggested file name
+  const exportPdf = () => {
+    const previousTitle = document.title
+    document.title = `Nafaqati-Report-${selected}`
+    const restore = () => {
+      document.title = previousTitle
+      window.removeEventListener('afterprint', restore)
+    }
+    window.addEventListener('afterprint', restore)
+    window.print()
+  }
+
   return (
     <div className="analytics reports" dir={dir} lang={dir === 'rtl' ? 'ar' : 'en'}>
       <header className="an-header">
@@ -57,8 +72,13 @@ export default function Reports() {
               ))}
             </select>
           )}
+          <button type="button" className="rp-export" onClick={exportPdf} disabled={!ready} title={t.exportHint}>
+            <FileDown size={16} aria-hidden="true" />
+            {t.exportPdf}
+          </button>
         </div>
       </header>
+      <p className="rp-print-meta">{t.printMeta(currency ?? '', new Date(`${today}T00:00:00Z`).toLocaleDateString(locale, { timeZone: 'UTC', dateStyle: 'medium' }))}</p>
       {others.length > 0 && (
         <p className="analytics-note" role="note">
           {t.otherCurrencies(others.join(', '), currency)}
