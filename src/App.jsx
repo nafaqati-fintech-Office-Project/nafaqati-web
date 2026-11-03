@@ -24,6 +24,7 @@ const AiAssistant = lazy(() => import('./features/ai-assistant/AiAssistant.jsx')
 const Profile = lazy(() => import('./features/profile/Profile.jsx'))
 const Notifications = lazy(() => import('./features/notifications/NotificationsPage.jsx'))
 const Subscriptions = lazy(() => import('./features/subscriptions/Subscriptions.jsx'))
+const Reports = lazy(() => import('./features/reports/Reports.jsx'))
 const Settings = lazy(() => import('./features/settings/Settings.jsx'))
 
 function HomeRedirect() {
@@ -137,6 +138,14 @@ export default function App() {
   }
 />
 <Route
+  path="/reports"
+  element={
+    <Suspense fallback={<AuthLoader />}>
+      <Reports />
+    </Suspense>
+  }
+/>
+<Route
   path="/settings"
   element={
     <Suspense fallback={<AuthLoader />}>
@@ -144,7 +153,7 @@ export default function App() {
     </Suspense>
   }
 />
-{NAV_ITEMS.filter((item) => !['dashboard', 'transactions', 'analytics', 'budgets', 'goals', 'family', 'ai', 'subscriptions', 'settings'].includes(item.key)).map((item) => (
+{NAV_ITEMS.filter((item) => !['dashboard', 'transactions', 'analytics', 'budgets', 'goals', 'family', 'ai', 'subscriptions', 'reports', 'settings'].includes(item.key)).map((item) => (
   <Route key={item.key} path={item.path} element={<ComingSoon />} />
 ))}
       </Route>
