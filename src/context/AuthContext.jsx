@@ -106,15 +106,31 @@ export function AuthProvider({ children }) {
     }
   }, [signedOut])
 
-  const login = useCallback(async (identifier, password, rememberMe) => {
-    const data = await authApi.login(identifier, password, rememberMe)
-    setAccessToken(data.accessToken)
-    writeRefreshToken(data.refreshToken, Boolean(rememberMe))
-    setUser(toUser(data))
-    setSessionExpired(false)
-    setStatus('authenticated')
-    scheduleRefresh(data.expiresIn)
-  }, [scheduleRefresh])
+  const startSession = useCallback(
+    (data, rememberMe) => {
+      setAccessToken(data.accessToken)
+      writeRefreshToken(data.refreshToken, Boolean(rememberMe))
+      setUser(toUser(data))
+      setSessionExpired(false)
+      setStatus('authenticated')
+      scheduleRefresh(data.expiresIn)
+    },
+    [scheduleRefresh],
+  )
+
+  const login = useCallback(
+    async (identifier, password, rememberMe) => {
+      startSession(await authApi.login(identifier, password, rememberMe), rememberMe)
+    },
+    [startSession],
+  )
+
+  const loginWithGoogle = useCallback(
+    async (idToken) => {
+      startSession(await authApi.googleLogin(idToken, true), true)
+    },
+    [startSession],
+  )
 
   const register = useCallback((data) => authApi.register(data), [])
 
@@ -133,10 +149,11 @@ export function AuthProvider({ children }) {
       isInitializing: status === 'loading',
       sessionExpired,
       login,
+      loginWithGoogle,
       register,
       logout,
     }),
-    [user, status, sessionExpired, login, register, logout],
+    [user, status, sessionExpired, login, loginWithGoogle, register, logout],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

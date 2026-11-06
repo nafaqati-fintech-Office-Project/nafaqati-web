@@ -8,7 +8,10 @@ const post = (path, body) => bare.post(`/api/auth/${path}`, body).then((res) => 
 export const login = (identifier, password, rememberMe) =>
   post('login', { identifier, password, rememberMe: Boolean(rememberMe) })
 
-export const register = (data) => post('register', data)
+// Signs in with the ID token Google gave the browser; the first time, the server creates the account.
+export const googleLogin = (idToken, rememberMe) => post('google', { idToken, rememberMe: Boolean(rememberMe) })
+
+export const register =(data) => post('register', data)
 
 export const refresh = (refreshToken) => post('refresh', { refreshToken })
 

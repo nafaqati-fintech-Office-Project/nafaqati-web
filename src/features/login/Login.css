@@ -24,6 +24,12 @@
   gap: 12px;
 }
 
+.login-google {
+  display: flex;
+  justify-content: center;
+  min-height: 44px;
+}
+
 .login-social-btn {
   display: flex;
   align-items: center;
