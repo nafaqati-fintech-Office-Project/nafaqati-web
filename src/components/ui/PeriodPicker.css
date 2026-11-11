@@ -1,0 +1,179 @@
+.period-picker {
+  position: relative;
+}
+
+.period-bar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: var(--shadow-card);
+}
+
+.period-arrow,
+.period-current {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--navy);
+  cursor: pointer;
+}
+
+.period-arrow {
+  width: 32px;
+  height: 32px;
+}
+
+.period-current {
+  gap: 6px;
+  min-width: 150px;
+  height: 32px;
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.period-current svg:first-child {
+  color: var(--primary);
+}
+
+.period-arrow:hover:not(:disabled),
+.period-current:hover {
+  background: #f3f6fc;
+}
+
+.period-arrow:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.period-arrow:focus-visible,
+.period-current:focus-visible,
+.period-presets button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.period-pop {
+  position: absolute;
+  inset-inline-end: 0;
+  top: calc(100% + 8px);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: min(340px, calc(100vw - 32px));
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.16);
+}
+
+.period-presets {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.period-presets button {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  text-align: start;
+  cursor: pointer;
+}
+
+.period-presets button:hover {
+  border-color: var(--primary);
+}
+
+.period-presets button.is-active {
+  border-color: var(--primary);
+  background: var(--tint-blue);
+  color: var(--primary);
+}
+
+.period-custom {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.period-custom strong {
+  font-size: 13px;
+  color: var(--navy);
+}
+
+.period-dates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.period-dates label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.period-dates input {
+  width: 100%;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--navy);
+}
+
+.period-dates input[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+.period-error {
+  margin: 0;
+  font-size: 12px;
+  color: var(--danger);
+}
+
+.period-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+@media (max-width: 480px) {
+  .period-current {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .period-bar {
+    width: 100%;
+  }
+
+  .period-picker {
+    width: 100%;
+  }
+
+  .period-pop {
+    inset-inline: 0;
+    width: auto;
+  }
+}

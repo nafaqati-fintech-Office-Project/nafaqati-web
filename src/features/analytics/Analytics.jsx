@@ -1,39 +1,51 @@
-import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useAnalytics } from '../../hooks/useAnalytics.js'
 import { useFormat } from '../../hooks/useFormat.js'
-import { currentMonth } from '../../utils/dateRange.js'
+import { currentMonthPeriod, periodFromParams, wholeMonth } from '../../utils/period.js'
 import AnalyticsHeader from './AnalyticsHeader.jsx'
 import KpiCards from './KpiCards.jsx'
 import TrendChart from './TrendChart.jsx'
 import CategoryBreakdown from './CategoryBreakdown.jsx'
 import SpendingHeatmap from './SpendingHeatmap.jsx'
 import WeekdayPattern from './WeekdayPattern.jsx'
-import { useAnalyticsText } from './useAnalyticsText.js'
+import { AnalyticsRangeContext, useAnalyticsText } from './useAnalyticsText.js'
 import './Analytics.css'
 
-const shiftMonth = (month, by) => {
-  const [y, m] = month.split('-').map(Number)
-  const d = new Date(Date.UTC(y, m - 1 + by, 1))
-  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`
-}
-
+// The period lives in the URL (?from=&to=), so Back from a drill-down keeps it; default: this month
 export default function Analytics() {
   const { timeZone } = useFormat()
-  const { t, dir } = useAnalyticsText()
-  const maxMonth = currentMonth(timeZone)
-  const [month, setMonth] = useState(maxMonth)
-  const { comparison, trend, categories, daily, currencies, currency, setCurrency, range } = useAnalytics(month)
+  const [params, setParams] = useSearchParams()
+  const period = periodFromParams(params, currentMonthPeriod(timeZone))
+  const onPeriod = (next) =>
+    setParams(
+      (prev) => {
+        const p = new URLSearchParams(prev)
+        p.set('from', next.from)
+        p.set('to', next.to)
+        return p
+      },
+      { replace: true },
+    )
+  return (
+    <AnalyticsRangeContext.Provider value={!wholeMonth(period)}>
+      <AnalyticsPage period={period} onPeriod={onPeriod} timeZone={timeZone} />
+    </AnalyticsRangeContext.Provider>
+  )
+}
 
-  // Currencies of this month that are not the selected one; their amounts are never mixed into the figures
+function AnalyticsPage({ period, onPeriod, timeZone }) {
+  const { t, dir } = useAnalyticsText()
+  const { comparison, trend, categories, daily, currencies, currency, setCurrency, range, month } = useAnalytics(period)
+
+  // Currencies of this period that are not the selected one; their amounts are never mixed into the figures
   const others = currencies.filter((c) => c !== currency)
 
   return (
     <div className="analytics" dir={dir} lang={dir === 'rtl' ? 'ar' : 'en'}>
       <AnalyticsHeader
-        month={month}
-        maxMonth={maxMonth}
-        onPrev={() => setMonth((m) => shiftMonth(m, -1))}
-        onNext={() => setMonth((m) => (m < maxMonth ? shiftMonth(m, 1) : m))}
+        period={period}
+        onPeriod={onPeriod}
+        timeZone={timeZone}
         currencies={currencies}
         currency={currency}
         onCurrency={setCurrency}

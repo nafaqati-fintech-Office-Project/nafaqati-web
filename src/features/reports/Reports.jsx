@@ -1,11 +1,11 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, FileDown, FileSpreadsheet } from 'lucide-react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { FileDown, FileSpreadsheet } from 'lucide-react'
 import { useFormat } from '../../hooks/useFormat.js'
 import { useReports } from '../../hooks/useReports.js'
-import { currentMonth, previousMonth, todayKey } from '../../utils/dateRange.js'
+import { todayKey } from '../../utils/dateRange.js'
+import { currentMonthPeriod, periodFromParams, previousPeriod, wholeMonth } from '../../utils/period.js'
 import { transactionsLink } from '../../utils/transactionLinks.js'
-import { monthLabel } from '../analytics/analyticsUtils.js'
+import PeriodPicker from '../../components/ui/PeriodPicker.jsx'
 import {
   CategorySection,
   ComparisonSection,
@@ -20,35 +20,52 @@ import {
 } from './ReportSections.jsx'
 import { useCategories } from '../../hooks/useCategories.js'
 import { reportCsv, spendingItems } from './reportUtils.js'
-import { useReportsText } from './useReportsText.js'
+import { ReportRangeContext, useReportsText } from './useReportsText.js'
 import '../analytics/Analytics.css'
 import '../analytics/AnalyticsHeader.css'
 import '../analytics/SectionCard.css'
 import './Reports.css'
 
-const shiftMonth = (month, by) => {
-  const [y, m] = month.split('-').map(Number)
-  const d = new Date(Date.UTC(y, m - 1 + by, 1))
-  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`
+// Reports: the report for a month or any date range, categories, merchants, lifestyle, savings and the comparison
+// with the period before. The period lives in the URL (?from=&to=), so Back from a drill-down keeps it.
+export default function Reports() {
+  const { timeZone } = useFormat()
+  const [params, setParams] = useSearchParams()
+  const period = periodFromParams(params, currentMonthPeriod(timeZone))
+  const isRange = !wholeMonth(period)
+  return (
+    <ReportRangeContext.Provider value={isRange}>
+      <ReportsPage
+        period={period}
+        timeZone={timeZone}
+        onPeriod={(next) =>
+          setParams(
+            (prev) => {
+              const p = new URLSearchParams(prev)
+              p.set('from', next.from)
+              p.set('to', next.to)
+              return p
+            },
+            { replace: true },
+          )
+        }
+      />
+    </ReportRangeContext.Provider>
+  )
 }
 
-// Reports: the monthly report, categories, merchants, lifestyle, savings and the comparison with last month.
-// Same data services and month/currency controls as Analytics.
-export default function Reports() {
-  const { t, dir, locale } = useReportsText()
-  const { timeZone } = useFormat()
-  const maxMonth = currentMonth(timeZone)
-  const [picked, setMonth] = useState(null)
-  const selected = picked && picked <= maxMonth ? picked : maxMonth
-  const { comparison, trend, expenses, currencies, currency, setCurrency } = useReports(selected)
+function ReportsPage({ period, timeZone, onPeriod }) {
+  const { t, dir, locale, lang } = useReportsText()
+  const selected = wholeMonth(period) ?? `${period.from}_${period.to}`
+  const { comparison, trend, expenses, currencies, currency, setCurrency } = useReports(period)
   const today = todayKey(timeZone)
   const others = currencies.filter((c) => c !== currency)
-  // Every card, row and bar opens the Transactions page filtered to what it shows (defaults to the selected month)
+  // Every card, row and bar opens the Transactions page filtered to what it shows
   const navigate = useNavigate()
-  const open = (filters = {}) => navigate(transactionsLink({ month: selected, ...filters }))
-  const prevMonth = previousMonth(selected)
-  const Back = dir === 'rtl' ? ChevronRight : ChevronLeft
-  const Forward = dir === 'rtl' ? ChevronLeft : ChevronRight
+  // A link may name another month (a trend bar) or other days (the previous period); else it is the selected period
+  const open = (filters = {}) =>
+    navigate(transactionsLink(filters.month || filters.from ? filters : { from: period.from, to: period.to, ...filters }))
+  const previous = previousPeriod(period)
 
   // Only a loaded report is exported, so the PDF never has half the data
   const ready = !comparison.loading && !comparison.error && !trend.loading && !expenses.loading
@@ -85,15 +102,7 @@ export default function Reports() {
           <p>{t.subtitle}</p>
         </div>
         <div className="an-tools">
-          <div className="an-month" role="group" aria-label={t.month}>
-            <button type="button" onClick={() => setMonth(shiftMonth(selected, -1))} aria-label={t.prevMonth}>
-              <Back size={18} aria-hidden="true" />
-            </button>
-            <span aria-live="polite">{monthLabel(selected, locale, { month: 'long', year: 'numeric' })}</span>
-            <button type="button" onClick={() => setMonth(shiftMonth(selected, 1))} disabled={selected >= maxMonth} aria-label={t.nextMonth}>
-              <Forward size={18} aria-hidden="true" />
-            </button>
-          </div>
+          <PeriodPicker value={period} onChange={onPeriod} timeZone={timeZone} lang={lang} />
           {currencies.length > 0 && (
             <select className="an-currency" value={currency ?? ''} onChange={(e) => setCurrency(e.target.value)} aria-label={t.currency}>
               {currencies.map((c) => (
@@ -120,16 +129,16 @@ export default function Reports() {
         </p>
       )}
       <div className="rp-grid">
-        <SummarySection comparison={comparison} expenses={expenses} currency={currency} month={selected} today={today} open={open} />
+        <SummarySection comparison={comparison} expenses={expenses} currency={currency} period={period} timeZone={timeZone} open={open} />
         <CategorySection comparison={comparison} currency={currency} open={open} />
         <MerchantSection expenses={expenses} currency={currency} open={open} />
-        <WeeklySection expenses={expenses} currency={currency} month={selected} timeZone={timeZone} locale={locale} open={open} />
+        <WeeklySection expenses={expenses} currency={currency} period={period} timeZone={timeZone} locale={locale} open={open} />
         <PaymentMethodsSection expenses={expenses} currency={currency} open={open} />
         <MovementSection comparison={comparison} currency={currency} open={open} />
         <LifestyleSection comparison={comparison} currency={currency} open={open} />
-        <SavingsSection comparison={comparison} currency={currency} open={open} prevMonth={prevMonth} />
+        <SavingsSection comparison={comparison} currency={currency} open={open} previous={previous} />
         <DebtSection comparison={comparison} currency={currency} open={open} />
-        <ComparisonSection comparison={comparison} trend={trend} currency={currency} locale={locale} open={open} prevMonth={prevMonth} />
+        <ComparisonSection comparison={comparison} trend={trend} currency={currency} locale={locale} open={open} previous={previous} />
       </div>
     </div>
   )

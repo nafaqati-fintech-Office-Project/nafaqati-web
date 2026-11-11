@@ -17,6 +17,7 @@ export default function TransactionFilters({
   clearFilters,
   hasActiveFilters,
   categories,
+  cards = [],
   isMobile,
   exporting,
   onExport,
@@ -51,11 +52,21 @@ export default function TransactionFilters({
     ...STATUSES.map((s) => ({ value: s, label: t.status[s] })),
   ]
   const rangeOptions = RANGES.map((r) => ({ value: r, label: t.filters.ranges[r] }))
-  const dropdownFilterCount = [filters.category, filters.status, filters.range !== 'all'].filter(Boolean).length
+  // Card-wise: the cards seen in the user's bank SMS, by their last digits (plus a card in the URL with no rows yet)
+  const cardOptions = [
+    { value: '', label: t.filters.cards },
+    ...cards.map((c) => ({ value: c.cardLast4, label: t.filters.card(c.cardLast4, c.bank) })),
+    ...(filters.card && !cards.some((c) => c.cardLast4 === filters.card) ? [{ value: filters.card, label: t.filters.card(filters.card, null) }] : []),
+  ]
+  const showCards = cardOptions.length > 1
+  const dropdownFilterCount = [filters.category, filters.card, filters.status, filters.range !== 'all'].filter(Boolean).length
 
   const dropdowns = (
     <>
       <Dropdown label={t.filters.categoryLabel} value={filters.category} options={categoryOptions} onChange={(category) => setFilters({ category })} />
+      {showCards && (
+        <Dropdown label={t.filters.cardLabel} value={filters.card} options={cardOptions} onChange={(card) => setFilters({ card })} />
+      )}
       <Dropdown label={t.statusFilter.label} value={filters.status} options={statusOptions} onChange={(status) => setFilters({ status })} />
       <Dropdown
         label={t.filters.timeLabel}

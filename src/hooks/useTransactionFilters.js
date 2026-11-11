@@ -11,7 +11,8 @@ export const DEFAULT_SORT = 'transactionDate,desc'
 const SORTS = ['transactionDate,asc', 'transactionDate,desc', 'amount,asc', 'amount,desc']
 
 // Params that make up "filters" (everything but sort/size and unrelated ones like ?new=)
-const FILTER_KEYS = ['q', 'type', 'status', 'category', 'range', 'from', 'to', 'page']
+const FILTER_KEYS = ['q', 'type', 'status', 'category', 'card', 'range', 'from', 'to', 'page']
+const CARD_RE = /^\d{3,4}$/
 const DEFAULTS = { sort: DEFAULT_SORT, size: 10, page: 1, range: 'all' }
 
 // URL <-> state: reload and the Back button keep search, chip, filters, sort and page.
@@ -30,6 +31,7 @@ export function useTransactionFilters() {
       type: TYPES.includes(type) ? type : '',
       status: STATUSES.includes(status) ? status : '',
       category: params.get('category') ?? '',
+      card: CARD_RE.test(params.get('card') ?? '') ? params.get('card') : '',
       range: RANGES.includes(range) ? range : 'all',
       from: params.get('from') ?? '',
       to: params.get('to') ?? '',
@@ -65,7 +67,7 @@ export function useTransactionFilters() {
     })
   }, [setParams])
 
-  const hasActiveFilters = Boolean(filters.q || filters.type || filters.status || filters.category || filters.range !== 'all')
+  const hasActiveFilters = Boolean(filters.q || filters.type || filters.status || filters.category || filters.card || filters.range !== 'all')
 
   return { filters, setFilters, clearFilters, hasActiveFilters }
 }
@@ -79,6 +81,7 @@ export function toApiParams(filters, timeZone) {
     type: filters.type ? filters.type.toUpperCase() : undefined,
     status: filters.status || undefined,
     categoryId: filters.category || undefined,
+    card: filters.card || undefined,
     from: from || undefined,
     to: to || undefined,
     timeZone,

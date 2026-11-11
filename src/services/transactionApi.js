@@ -24,14 +24,18 @@ export function toTransaction(t) {
     source: t.source, // MANUAL | EXTERNAL
     reference: t.externalTransactionId,
     occurredAt: t.transactionDate,
+    // Last 3-4 digits of the card / account it was made with (from the bank SMS); null when unknown
+    cardLast4: t.cardLast4 ?? null,
   }
 }
 
-// filters: { search, type: 'EXPENSE'|'INCOME', status, categoryId, from, to (calendar days in `timeZone`), timeZone, sort, page (0-based), size }
+// filters: { search, type: 'EXPENSE'|'INCOME', status, categoryId, card (last digits), from, to (calendar days in `timeZone`),
+//            timeZone, sort, page (0-based), size }
 const toParams = (filters) => ({
   q: filters.search || undefined,
   type: filters.type ? TYPE_TO_API[filters.type] : undefined,
   category: filters.categoryId || undefined,
+  card: filters.card || undefined,
   startDate: filters.from || undefined,
   endDate: filters.to || undefined,
   timeZone: resolveTimeZone(filters.timeZone),
@@ -68,6 +72,9 @@ export async function listAllTransactions(filters, cap = EXPORT_CAP) {
 }
 
 export const getCategories = () => api.get(`${BASE}/categories`).then((res) => res.data)
+
+// The user's cards, most used first: [{ cardLast4, count, lastUsed, bank|null }]
+export const getCards = () => api.get(`${BASE}/cards`).then((res) => res.data)
 
 // data: { type: 'EXPENSE'|'INCOME', amount, currency, merchant?, description, categoryId?, occurredAt (ISO) }
 export async function createTransaction(data) {

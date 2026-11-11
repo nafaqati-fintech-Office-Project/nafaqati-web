@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { ChevronDown, Cloud, Flag, HeartPulse, Moon, PiggyBank, Plus, ScanLine, Search, ShoppingBag, Sparkles, Sun, Sunset, Users, Wallet } from 'lucide-react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Cloud, Flag, HeartPulse, Moon, PiggyBank, Plus, ScanLine, Search, ShoppingBag, Sparkles, Sun, Sunset, Users, Wallet } from 'lucide-react'
 import { useUser } from '../../hooks/useUser.js'
 import { useFormat } from '../../hooks/useFormat.js'
 import { useDashboardData } from '../../hooks/useDashboardData.js'
-import { APP_TEXT } from '../../constants/appText.js'
-import { formatMonthLabel, getDayPeriod, lastMonths } from '../../utils/format.js'
-import { currentMonth, monthRange, todayKey } from '../../utils/dateRange.js'
+import { APP_TEXT, PERIOD_TEXT } from '../../constants/appText.js'
+import { getDayPeriod } from '../../utils/format.js'
+import { currentMonth, todayKey } from '../../utils/dateRange.js'
+import { addDays, currentMonthPeriod, periodDays, periodFromParams, periodLabel, wholeMonth } from '../../utils/period.js'
+import PeriodPicker from '../../components/ui/PeriodPicker.jsx'
 import { forCurrency } from '../../services/reportsApi.js'
 import { BUDGET_TRACKING, getCurrentBudget } from '../../services/budgetApi.js'
 import { decimalsFor } from '../../constants/currencies.js'
@@ -134,10 +136,22 @@ export default function Dashboard() {
   const { currency, timeZone, money } = useFormat()
   const [nudgeDismissed, setNudgeDismissed] = useState(false)
   const navigate = useNavigate()
-  const months = useMemo(() => lastMonths(12, currentMonth(timeZone)), [timeZone])
-  const [month, setMonth] = useState(() => currentMonth(timeZone))
+  // The period lives in the URL (?from=&to=), so coming Back from a drill-down keeps it; default: this month
+  const [params, setParams] = useSearchParams()
+  const period = periodFromParams(params, currentMonthPeriod(timeZone))
+  const setPeriod = (next) =>
+    setParams(
+      (prev) => {
+        const p = new URLSearchParams(prev)
+        p.set('from', next.from)
+        p.set('to', next.to)
+        return p
+      },
+      { replace: true },
+    )
+  const isMonth = Boolean(wholeMonth(period))
   const [search, setSearch] = useState('')
-  const { current, previous, categories, daily } = useDashboardData(month)
+  const { current, previous, categories, daily } = useDashboardData(period)
   const currentBudget = useAsync(
     () =>
       getCurrentBudget().catch((error) => {
@@ -147,8 +161,8 @@ export default function Dashboard() {
     `dashboard-budget:${currency}:${timeZone}`,
   )
 
-  const period = getDayPeriod(timeZone)
-  const { icon: GreetingIcon, color: greetingColor } = GREETING_ICONS[period]
+  const dayPart = getDayPeriod(timeZone)
+  const { icon: GreetingIcon, color: greetingColor } = GREETING_ICONS[dayPart]
   // Real first name from GET /api/users/me. While it loads (or while a placeholder name is being replaced by
   // the registration event) we show a shimmer; a placeholder name (the username) is never shown.
   const firstName = profile && !nameProvisional ? profile.firstName : null
@@ -163,9 +177,10 @@ export default function Dashboard() {
   }
   // Drill-down from a tile/graph to the Transactions page, scoped to the selected month (or one day of it).
   // Transactions reads these straight from the URL (type / category / range=custom&from&to).
-  const openTransactions = ({ day, ...filters } = {}) =>
-    navigate(transactionsLink({ month, day: day ? `${month}-${String(day).padStart(2, '0')}` : undefined, ...filters }))
-  const monthLabel = formatMonthLabel(month)
+  const openTransactions = ({ day, ...filters } = {}) => navigate(transactionsLink({ from: period.from, to: period.to, day, ...filters }))
+  const monthLabel = periodLabel(period)
+  // Stat cards compare with the month before, or with the same number of days before a custom range
+  const trendLabel = isMonth ? undefined : PERIOD_TEXT.en.vsPrevious
 
   const onSearch = (e) => {
     e.preventDefault()
@@ -193,15 +208,22 @@ export default function Dashboard() {
   const noData = Boolean(current.data) && income === 0 && spending === 0 && otherCurrencies.length === 0
 
   const dailyEntry = forCurrency(daily.data, currency)
+  // One point per day of the period (any length); about five evenly spaced axis labels
   const spendingData = useMemo(() => {
     if (!daily.data) return null
-    const { days } = monthRange(month)
-    const monthShort = new Date(`${month}-01T00:00:00Z`).toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' })
-    const byDay = new Map((dailyEntry?.days ?? []).map((d) => [Number(d.date.slice(8, 10)), Number(d.total)]))
-    const points = Array.from({ length: days }, (_, i) => ({ day: i + 1, label: `${i + 1} ${monthShort}`, expenses: byDay.get(i + 1) ?? 0 }))
-    const tickDays = [1, 7, 14, 21, 28].filter((d) => d <= days)
-    return { points, ticks: tickDays.map((d) => points[d - 1].label), total: points.reduce((sum, p) => sum + p.expenses, 0) }
-  }, [daily.data, dailyEntry, month])
+    const days = periodDays(period)
+    const byDate = new Map((dailyEntry?.days ?? []).map((d) => [d.date, Number(d.total)]))
+    const points = Array.from({ length: days }, (_, i) => {
+      const date = addDays(period.from, i)
+      const label = new Date(`${date}T00:00:00Z`).toLocaleDateString('en-US', { day: 'numeric', month: 'short', timeZone: 'UTC' })
+      return { day: date, label, expenses: byDate.get(date) ?? 0 }
+    })
+    const step = Math.max(1, Math.ceil(days / 5))
+    const ticks = points.filter((_, i) => i % step === 0).map((p) => p.label)
+    return { points, ticks, total: points.reduce((sum, p) => sum + p.expenses, 0) }
+    // period is read through its days
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [daily.data, dailyEntry, period.from, period.to])
 
   const categoryEntry = forCurrency(categories.data, currency)
   const categoryData = useMemo(() => {
@@ -222,11 +244,11 @@ export default function Dashboard() {
         <div className="dash-header">
           <div>
             <h1 className="dash-greeting">
-              {t.greetings[period]}
+              {t.greetings[dayPart]}
               {firstName ? `, ${firstName}!` : waitingForName ? <span className="sk greeting-sk" aria-hidden="true" /> : '!'}{' '}
-              <GreetingIcon size={28} color={greetingColor} fill={period === 'morning' ? greetingColor : 'none'} aria-hidden="true" />
+              <GreetingIcon size={28} color={greetingColor} fill={dayPart === 'morning' ? greetingColor : 'none'} aria-hidden="true" />
             </h1>
-            <p className="dash-sub">{t.overview(formatMonthLabel(month))}</p>
+            <p className="dash-sub">{t.overview(monthLabel)}</p>
             {showNameNudge && (
               <p className="name-nudge" role="status">
                 <Link to="/profile">{t.nameNudge.cta}</Link> {t.nameNudge.body}
@@ -247,16 +269,7 @@ export default function Dashboard() {
                 aria-label={t.searchLabel}
               />
             </form>
-            <div className="dash-month">
-              <select value={month} onChange={(e) => setMonth(e.target.value)} aria-label={t.monthLabel}>
-                {months.map((m) => (
-                  <option key={m.value} value={m.value}>
-                    {m.label}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown size={16} aria-hidden="true" />
-            </div>
+            <PeriodPicker value={period} onChange={setPeriod} timeZone={timeZone} className="dash-period" />
           </div>
         </div>
 
@@ -267,7 +280,7 @@ export default function Dashboard() {
         )}
         {noData && (
           <div className="dash-empty" role="status">
-            <p>{t.noData(formatMonthLabel(month))}</p>
+            <p>{t.noData(monthLabel)}</p>
             <button type="button" className="btn btn-primary" onClick={addTransaction}>
               <Plus size={16} aria-hidden="true" />
               {t.addFirst}
@@ -285,6 +298,7 @@ export default function Dashboard() {
             trend={incomeTrend}
             trendTone={tone((incomeTrend ?? 0) >= 0)}
             onClick={() => openTransactions({ type: 'income' })}
+            trendLabel={trendLabel}
             actionLabel={t.stats.viewIncome(monthLabel)}
           />
           <StatCard
@@ -297,6 +311,7 @@ export default function Dashboard() {
             trendTone={tone((spendingTrend ?? 0) <= 0)}
             onClick={() => openTransactions({ type: 'expense' })}
             actionLabel={t.stats.viewSpending(monthLabel)}
+            trendLabel={trendLabel}
           />
           <StatCard
             state={current}
@@ -307,6 +322,7 @@ export default function Dashboard() {
             trend={savingsTrend}
             trendTone={tone((savingsTrend ?? 0) >= 0)}
             onClick={() => openTransactions()}
+            trendLabel={trendLabel}
             actionLabel={t.stats.viewSavings(monthLabel)}
           />
           <StatCard soon icon={HeartPulse} tone="teal" label={t.stats.health} />

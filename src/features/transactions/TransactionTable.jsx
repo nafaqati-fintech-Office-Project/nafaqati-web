@@ -43,6 +43,7 @@ export default function TransactionTable({
             <MerchantAvatar name={row.merchant.name} />
             <div className="merchant-text">
               <strong>{row.merchant.name}</strong>
+              {row.cardLast4 && <small className="tx-card-digits num">•••• {row.cardLast4}</small>}
             </div>
           </div>
         ),

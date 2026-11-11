@@ -42,7 +42,7 @@
   display: flex;
   flex: 1 1 340px;
   min-width: 0;
-  max-width: 520px;
+  max-width: 640px;
   align-items: center;
   gap: 0;
   background: #fff;
@@ -925,4 +925,32 @@ button.stat-body:focus-visible,
 .safe-top[data-clickable]:focus-visible {
   outline: 2px solid #1e6bff;
   outline-offset: 4px;
+}
+
+/* The calendar shares the search bar's card: no second shadow, a divider instead */
+.dash-period .period-bar {
+  border-inline-start: 1px solid var(--border);
+  border-radius: 0 12px 12px 0;
+  box-shadow: none;
+}
+
+@media (max-width: 600px) {
+  .dash-tools {
+    flex-wrap: wrap;
+  }
+
+  .dash-search {
+    flex-basis: 100%;
+  }
+
+  .dash-period,
+  .dash-period .period-bar {
+    width: 100%;
+  }
+
+  .dash-period .period-bar {
+    border-inline-start: none;
+    border-top: 1px solid var(--border);
+    border-radius: 0 0 12px 12px;
+  }
 }

@@ -44,6 +44,8 @@ export default function Transactions() {
   const apiParams = useMemo(() => toApiParams(filters, fmt.timeZone), [filters, fmt.timeZone])
   // Server-side search, filters, sort and pagination; responses for outdated params are ignored
   const list = useAsync(() => transactionApi.listTransactions(apiParams), JSON.stringify(apiParams))
+  // The Card filter's choices; a failure only hides that filter
+  const cards = useAsync(() => transactionApi.getCards().catch(() => []), 'tx-cards')
   const isMobile = useMediaQuery('(max-width: 767px)')
 
   const [details, setDetails] = useState(null)
@@ -174,6 +176,7 @@ export default function Transactions() {
         clearFilters={clearFilters}
         hasActiveFilters={hasActiveFilters}
         categories={categories}
+        cards={cards.data ?? []}
         isMobile={isMobile}
         exporting={exporting}
         onExport={exportCsv}

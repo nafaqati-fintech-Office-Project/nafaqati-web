@@ -57,6 +57,12 @@ export default function TransactionDetailsDrawer({ txn, onClose, onEdit, onDelet
                 <CategoryBadge code={txn.categoryId} />
               </dd>
             </div>
+            {txn.cardLast4 && (
+              <div>
+                <dt>{t.card}</dt>
+                <dd className="num">•••• {txn.cardLast4}</dd>
+              </div>
+            )}
             <div>
               <dt>{t.reference}</dt>
               <dd className="num">{txn.reference}</dd>

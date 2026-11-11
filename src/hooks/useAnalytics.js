@@ -1,25 +1,33 @@
 import { useState } from 'react'
 import { useAsync } from './useAsync.js'
 import { useFormat } from './useFormat.js'
-import { monthRange } from '../utils/dateRange.js'
+import { previousPeriod, wholeMonth } from '../utils/period.js'
 import * as reportsApi from '../services/reportsApi.js'
 
-// Real analytics data for the selected month ("YYYY-MM"), measured in the user's time zone. Each section is its
-// own request (parallel, independent loading/error/retry). useAsync ignores a response whose key (month + zone)
-// is no longer current, so a slow answer for an old month never overwrites the new one.
-//   comparison: month vs the month before (KPIs and category deltas)
-//   trend:      the 12 months ending with the selected one
-//   categories: spending by category of the month
-//   daily:      spending per day of the month
+// Real analytics data for the selected period ({ from, to }: a calendar month or any custom days), measured in the
+// user's time zone. Each section is its own request (parallel, independent loading/error/retry). useAsync ignores a
+// response whose key (period + zone) is no longer current, so a slow answer never overwrites the new one.
+//   comparison: the period vs the period before (KPIs and category deltas); a custom range is built from the range
+//               reports in the same shape as monthly-comparison
+//   trend:      the 12 months ending with the period's last month
+//   categories: spending by category of the period
+//   daily:      spending per day of the period
 // Every response lists all currencies, so switching currency is a client-side selection (no refetch).
-export function useAnalytics(month) {
+export function useAnalytics(period) {
   const { timeZone, currency: preferred } = useFormat()
-  const key = `${month}:${timeZone}`
-  const { from, to } = monthRange(month)
-  const range = { from, to, timeZone }
+  const key = `${period.from}:${period.to}:${timeZone}`
+  const month = wholeMonth(period)
+  const range = { from: period.from, to: period.to, timeZone }
+  const previous = previousPeriod(period)
 
-  const comparison = useAsync(() => reportsApi.getMonthlyComparison({ month, timeZone }), `comparison:${key}`)
-  const trend = useAsync(() => reportsApi.getMonthlyTrend({ endMonth: month, months: 12, timeZone }), `trend:${key}`)
+  const comparison = useAsync(
+    () => reportsApi.getPeriodComparison({ period, previous, month, timeZone }),
+    `comparison:${key}`,
+  )
+  const trend = useAsync(
+    () => reportsApi.getMonthlyTrend({ endMonth: period.to.slice(0, 7), months: 12, timeZone }),
+    `trend:${period.to.slice(0, 7)}:${timeZone}`,
+  )
   const categories = useAsync(() => reportsApi.getSpendingSummary(range), `categories:${key}`)
   const daily = useAsync(() => reportsApi.getDailySpending(range), `daily:${key}`)
 
@@ -30,5 +38,5 @@ export function useAnalytics(month) {
   const [picked, setPicked] = useState(null)
   const currency = currencies.includes(picked) ? picked : currencies.includes(preferred) ? preferred : currencies[0]
 
-  return { comparison, trend, categories, daily, currencies, currency, setCurrency: setPicked, range, timeZone }
+  return { comparison, trend, categories, daily, currencies, currency, setCurrency: setPicked, range, timeZone, month }
 }

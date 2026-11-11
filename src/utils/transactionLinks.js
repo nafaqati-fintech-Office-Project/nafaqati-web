@@ -10,7 +10,8 @@ import { monthRange } from './dateRange.js'
 //   type      'income' | 'expense'
 //   category  category code (the Transactions category filter uses codes as ids)
 //   q         free-text search over merchant and description
-export function transactionsLink({ month, from, to, day, type, category, q } = {}) {
+//   card      a card's last 3-4 digits
+export function transactionsLink({ month, from, to, day, type, category, q, card } = {}) {
   const params = new URLSearchParams()
   const range = day ? { from: day, to: day } : from || to ? { from, to } : month ? monthRange(month) : null
   if (range) {
@@ -21,6 +22,7 @@ export function transactionsLink({ month, from, to, day, type, category, q } = {
   if (type) params.set('type', type)
   if (category) params.set('category', category)
   if (q) params.set('q', q)
+  if (card) params.set('card', card)
   const query = params.toString()
   return query ? `/transactions?${query}` : '/transactions'
 }

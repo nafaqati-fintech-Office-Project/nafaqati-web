@@ -30,7 +30,7 @@ function niceAxis(max) {
   return { top: step * 4, ticks: [0, 1, 2, 3, 4].map((i) => i * step) }
 }
 
-// data: { points: [{ label, day, expenses }], ticks: [label], total } built from GET /api/reports/daily-spending
+// data: { points: [{ label, day ('YYYY-MM-DD'), expenses }], ticks: [label], total } built from GET /api/reports/daily-spending
 export default function SpendingOverviewCard({ data, state, onAdd, onSelectDay }) {
   const { money } = useFormat()
   const t = APP_TEXT.dashboard.spending

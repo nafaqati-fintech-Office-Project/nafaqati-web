@@ -42,7 +42,11 @@ function Kpi({ icon: Icon, tone, label, state, value, change, changeText, lowerI
   )
 }
 
-// Income, Expenses, Net savings (from monthly-comparison) and Savings rate (from monthly-trend)
+// Share of income kept (ratio), null without income
+const rateOf = (totals) => (totals && Number(totals.totalIncome) > 0 ? Number(totals.net) / Number(totals.totalIncome) : null)
+
+// Income, Expenses, Net savings (from the comparison) and Savings rate: from monthly-trend for a calendar month,
+// from the period's own totals for a custom range (`month` null)
 export default function KpiCards({ comparison, trend, currency, month }) {
   const { t } = useAnalyticsText()
   const entry = forCurrency(comparison.data, currency)
@@ -51,8 +55,9 @@ export default function KpiCards({ comparison, trend, currency, month }) {
   const changeOf = (d) => (d ? d.percent : null) // percent is null when the previous month is 0
 
   const months = forCurrency(trend.data, currency)?.months ?? []
-  const rate = months.find((m) => m.month === month)?.savingsRate ?? null
-  const prevRate = months.find((m) => m.month === previousMonth(month))?.savingsRate ?? null
+  const rate = month ? (months.find((m) => m.month === month)?.savingsRate ?? null) : rateOf(entry?.current)
+  const prevRate = month ? (months.find((m) => m.month === previousMonth(month))?.savingsRate ?? null) : rateOf(entry?.previous)
+  const rateState = month ? trend : comparison
   const rateChange = rate != null && prevRate != null ? (rate - prevRate) * 100 : null // percentage points
 
   const amount = (value) => money(value ?? 0, currency)
@@ -66,7 +71,7 @@ export default function KpiCards({ comparison, trend, currency, month }) {
         value={amount(cur?.totalExpenses)} change={changeOf(delta?.totalExpenses)} changeText={percentText(changeOf(delta?.totalExpenses))} />
       <Kpi icon={PiggyBank} tone="blue" label={t.kpi.net} state={comparison} onRetry={comparison.retry}
         value={amount(cur?.net)} change={changeOf(delta?.net)} changeText={percentText(changeOf(delta?.net))} />
-      <Kpi icon={Percent} tone="purple" label={t.kpi.rate} state={trend} onRetry={trend.retry}
+      <Kpi icon={Percent} tone="purple" label={t.kpi.rate} state={rateState} onRetry={rateState.retry}
         value={rate == null ? t.kpi.noChange : pct(rate * 100)} change={rateChange} changeText={rateChange == null ? '' : `${Math.abs(Math.round(rateChange * 10) / 10)} ${t.kpi.points}`} />
     </div>
   )

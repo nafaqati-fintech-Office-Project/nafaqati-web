@@ -6,12 +6,12 @@ import { categoryColor } from '../../config/categoryVisuals.js'
 import { useCategories } from '../../hooks/useCategories.js'
 import { MERCHANT_ROW_CAP } from '../../hooks/useReports.js'
 import { useReportsText } from './useReportsText.js'
+import { daysSoFar } from '../../utils/period.js'
 import { clickableProps } from '../../utils/transactionLinks.js'
 import {
   averagePerDay,
   biggestExpense,
   categoryRows,
-  daysCounted,
   debtSummary,
   lifestyleGroup,
   lifestyleShares,
@@ -54,7 +54,7 @@ function Change({ value, lowerIsBetter = false }) {
 }
 
 // Monthly spending report: the month at a glance
-export function SummarySection({ comparison, expenses, currency, month, today, open }) {
+export function SummarySection({ comparison, expenses, currency, period, timeZone, open }) {
   const { t } = useReportsText()
   const drill = useDrill(open)
   const entry = forCurrency(comparison.data, currency)
@@ -63,7 +63,8 @@ export function SummarySection({ comparison, expenses, currency, month, today, o
   const rows = spendingItems(expenses.data?.items).filter((i) => i.currency === currency)
   const biggest = biggestExpense(rows, currency)
   const empty = comparison.data && !cur?.totalExpenses && !cur?.totalIncome
-  const avg = averagePerDay(cur?.totalExpenses ?? 0, daysCounted(month, today))
+  // Spread over the period's days so far (a running month or a range ending today is not diluted)
+  const avg = averagePerDay(cur?.totalExpenses ?? 0, daysSoFar(period, timeZone))
   const tiles = [
     [t.summary.spent, money(cur?.totalExpenses ?? 0, currency), true, { type: 'expense' }],
     [t.summary.income, money(cur?.totalIncome ?? 0, currency), false, { type: 'income' }],
@@ -169,17 +170,17 @@ export function MerchantSection({ expenses, currency, open }) {
 }
 
 // Weekly report: everyday spending week by week, so a heavy week stands out
-export function WeeklySection({ expenses, currency, month, timeZone, locale, open }) {
+export function WeeklySection({ expenses, currency, period, timeZone, locale, open }) {
   const { t } = useReportsText()
   const drill = useDrill(open)
-  const monthFirst = `${month}-01`
-  const monthLast = addDaysKey(`${addDaysKey(monthFirst, 31).slice(0, 7)}-01`, -1)
-  // Only the week's days inside the month, the same days its total counts
+  const monthFirst = period.from
+  const monthLast = period.to
+  // Only the week's days inside the period, the same days its total counts
   const weekRange = (start) => {
     const end = addDaysKey(start, 6)
     return { from: start < monthFirst ? monthFirst : start, to: end > monthLast ? monthLast : end }
   }
-  const weeks = weeklySpending(spendingItems(expenses.data?.items), currency, month, timeZone)
+  const weeks = weeklySpending(spendingItems(expenses.data?.items), currency, period, timeZone)
   const peak = Math.max(0, ...weeks.map((w) => w.amount)) // bar scale only
   const label = (start) => new Date(`${start}T00:00:00Z`).toLocaleDateString(locale, { timeZone: 'UTC', month: 'short', day: 'numeric' })
   const empty = expenses.data && weeks.length === 0
@@ -231,7 +232,7 @@ export function PaymentMethodsSection({ expenses, currency, open }) {
     >
       <ul className="rp-list">
         {rows.map((r) => (
-          <li key={r.card ?? 'other'} {...(r.card ? drill({ type: 'expense', q: `****${r.card}` }, t.methods.card(r.card)) : {})}>
+          <li key={r.card ?? 'other'} {...(r.card ? drill({ type: 'expense', card: r.card }, t.methods.card(r.card)) : {})}>
             <div className="rp-line">
               <span>{r.card ? t.methods.card(r.card) : t.methods.other}</span>
               <span className="num">{`${money(r.amount, currency)} · ${r.percent}%`}</span>
@@ -371,7 +372,7 @@ export function LifestyleSection({ comparison, currency, open }) {
 }
 
 // Savings: what was kept and how it compares with last month
-export function SavingsSection({ comparison, currency, open, prevMonth }) {
+export function SavingsSection({ comparison, currency, open, previous }) {
   const { t } = useReportsText()
   const drill = useDrill(open)
   const entry = forCurrency(comparison.data, currency)
@@ -388,7 +389,7 @@ export function SavingsSection({ comparison, currency, open, prevMonth }) {
         <Change value={entry?.delta?.net?.percent ?? null} />
       </div>
       <p className="rp-note">{summary}</p>
-      <div className="rp-line" {...drill({ month: prevMonth }, t.savings.lastMonth)}>
+      <div className="rp-line" {...drill({ from: previous.from, to: previous.to }, t.savings.lastMonth)}>
         <span>{t.savings.lastMonth}</span>
         <span className="num">{money(entry?.previous?.net ?? 0, currency)}</span>
       </div>
@@ -397,7 +398,7 @@ export function SavingsSection({ comparison, currency, open, prevMonth }) {
 }
 
 // Comparative monthly report: this month against last, plus the last months of spending
-export function ComparisonSection({ comparison, trend, currency, locale, open, prevMonth }) {
+export function ComparisonSection({ comparison, trend, currency, locale, open, previous }) {
   const { t } = useReportsText()
   const drill = useDrill(open)
   const entry = forCurrency(comparison.data, currency)
@@ -427,7 +428,7 @@ export function ComparisonSection({ comparison, trend, currency, locale, open, p
               <td className="num" {...drill(filters, `${label} · ${t.comparison.thisMonth}`)}>
                 {money(entry?.current?.[field] ?? 0, currency)}
               </td>
-              <td className="num" {...drill({ ...filters, month: prevMonth }, `${label} · ${t.comparison.lastMonth}`)}>
+              <td className="num" {...drill({ ...filters, from: previous.from, to: previous.to }, `${label} · ${t.comparison.lastMonth}`)}>
                 {money(entry?.previous?.[field] ?? 0, currency)}
               </td>
               <td>

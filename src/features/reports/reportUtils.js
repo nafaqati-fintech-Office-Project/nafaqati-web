@@ -94,12 +94,23 @@ export function dayInZone(iso, timeZone) {
 }
 
 // Everyday spending week by week (weeks start on Sunday): [{ start: 'YYYY-MM-DD', amount, partial }] oldest first.
-// partial: the week runs into the month before or after, and only this month's days are counted.
-// Transfers to other people are not everyday spending, so they are left out.
-export function weeklySpending(items = [], currency, month, timeZone) {
-  const [y, m] = month.split('-').map(Number)
-  const first = Date.UTC(y, m - 1, 1)
-  const last = Date.UTC(y, m, 0)
+// `period` is a month ('YYYY-MM') or { from, to } days. partial: the week runs outside the period, and only the
+// period's days are counted. Transfers to other people are not everyday spending, so they are left out.
+export function weeklySpending(items = [], currency, period, timeZone) {
+  const utc = (key) => {
+    const [y, m, d] = key.split('-').map(Number)
+    return Date.UTC(y, m - 1, d)
+  }
+  let first
+  let last
+  if (typeof period === 'string') {
+    const [y, m] = period.split('-').map(Number)
+    first = Date.UTC(y, m - 1, 1)
+    last = Date.UTC(y, m, 0)
+  } else {
+    first = utc(period.from)
+    last = utc(period.to)
+  }
   const totals = new Map()
   for (const item of items) {
     if (item.currency !== currency || item.categoryId === TRANSFERS || !item.occurredAt) continue
