@@ -5,10 +5,13 @@ import { formatPercent } from '../../../utils/format.js'
 
 // Reusable stat card. `trend` is the percent change vs the previous month (null/undefined = hidden, e.g. when the
 // previous month is zero); `trendTone` is its color. `soon` renders the honest "Coming soon" state instead.
-export default function StatCard({ icon: Icon, tone, label, value, trend, trendTone, soon, state }) {
+export default function StatCard({ icon: Icon, tone, label, value, trend, trendTone, soon, state, onClick, actionLabel }) {
+  const clickable = Boolean(onClick) && !soon
+  const Body = clickable ? 'button' : 'div'
+  const bodyProps = clickable ? { type: 'button', onClick, 'aria-label': actionLabel ?? label, title: actionLabel } : {}
   return (
     <DashCard
-      className="stat"
+      className={`stat${clickable ? ' stat-clickable' : ''}`}
       state={state ?? { loading: false, error: null }}
       skeleton={
         <div className="stat-body">
@@ -21,7 +24,7 @@ export default function StatCard({ icon: Icon, tone, label, value, trend, trendT
         </div>
       }
     >
-      <div className="stat-body">
+      <Body className="stat-body" {...bodyProps}>
         <span className={`icon-circle ${soon ? 'tone-muted' : `tone-${tone}`}`}>
           {soon ? <Hourglass size={22} aria-hidden="true" /> : <Icon size={24} aria-hidden="true" />}
         </span>
@@ -41,7 +44,7 @@ export default function StatCard({ icon: Icon, tone, label, value, trend, trendT
             </>
           )}
         </div>
-      </div>
+      </Body>
     </DashCard>
   )
 }

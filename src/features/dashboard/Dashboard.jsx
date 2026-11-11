@@ -12,6 +12,7 @@ import { BUDGET_TRACKING, getCurrentBudget } from '../../services/budgetApi.js'
 import { decimalsFor } from '../../constants/currencies.js'
 import { getErrorInfo } from '../../lib/errors.js'
 import { useAsync } from '../../hooks/useAsync.js'
+import { clickableProps, transactionsLink } from '../../utils/transactionLinks.js'
 import StatCard from './components/StatCard.jsx'
 import SpendingOverviewCard from './components/SpendingOverviewCard.jsx'
 import QuickActions from './components/QuickActions.jsx'
@@ -65,7 +66,7 @@ function SafeValue({ budget }) {
   )
 }
 
-function SafeToSpendCard({ state, onSetBudget }) {
+function SafeToSpendCard({ state, onSetBudget, onOpen }) {
   if (state.loading) {
     return (
       <section className="dc safe-card" aria-label={t.safeToSpend.title}>
@@ -112,7 +113,7 @@ function SafeToSpendCard({ state, onSetBudget }) {
   }
   return (
     <section className="dc safe-card" aria-label={t.safeToSpend.title}>
-      <div className="safe-top">
+      <div className="safe-top" {...clickableProps(onOpen && (() => onOpen(state.data)), t.safeToSpend.viewSpending)}>
         <span className="icon-circle tone-green">
           <Wallet size={24} aria-hidden="true" />
         </span>
@@ -160,6 +161,12 @@ export default function Dashboard() {
     if (id === 'set-budget') navigate(currentBudget.data ? '/budgets' : '/budgets?create=1')
     if (id === 'new-goal') navigate('/goals')
   }
+  // Drill-down from a tile/graph to the Transactions page, scoped to the selected month (or one day of it).
+  // Transactions reads these straight from the URL (type / category / range=custom&from&to).
+  const openTransactions = ({ day, ...filters } = {}) =>
+    navigate(transactionsLink({ month, day: day ? `${month}-${String(day).padStart(2, '0')}` : undefined, ...filters }))
+  const monthLabel = formatMonthLabel(month)
+
   const onSearch = (e) => {
     e.preventDefault()
     const q = search.trim()
@@ -277,6 +284,8 @@ export default function Dashboard() {
             value={money(income)}
             trend={incomeTrend}
             trendTone={tone((incomeTrend ?? 0) >= 0)}
+            onClick={() => openTransactions({ type: 'income' })}
+            actionLabel={t.stats.viewIncome(monthLabel)}
           />
           <StatCard
             state={current}
@@ -286,6 +295,8 @@ export default function Dashboard() {
             value={money(spending)}
             trend={spendingTrend}
             trendTone={tone((spendingTrend ?? 0) <= 0)}
+            onClick={() => openTransactions({ type: 'expense' })}
+            actionLabel={t.stats.viewSpending(monthLabel)}
           />
           <StatCard
             state={current}
@@ -295,6 +306,8 @@ export default function Dashboard() {
             value={money(savings)}
             trend={savingsTrend}
             trendTone={tone((savingsTrend ?? 0) >= 0)}
+            onClick={() => openTransactions()}
+            actionLabel={t.stats.viewSavings(monthLabel)}
           />
           <StatCard soon icon={HeartPulse} tone="teal" label={t.stats.health} />
         </div>
@@ -305,13 +318,25 @@ export default function Dashboard() {
               <SafeToSpendCard
                 state={currentBudget}
                 onSetBudget={() => navigate('/budgets?create=1')}
+                onOpen={(budget) =>
+                  navigate(
+                    budget.periodStart
+                      ? transactionsLink({ from: budget.periodStart, to: budget.periodEnd, type: 'expense' })
+                      : transactionsLink({ month: currentMonth(timeZone), type: 'expense' }),
+                  )
+                }
               />
             ) : (
               <ComingSoonCard title={t.safeToSpend.title} description={t.safeToSpend.soon} />
             )}
           </div>
           <div className="area-spend">
-            <SpendingOverviewCard data={spendingData} state={daily} onAdd={addTransaction} />
+            <SpendingOverviewCard
+              data={spendingData}
+              state={daily}
+              onAdd={addTransaction}
+              onSelectDay={(day) => openTransactions({ type: 'expense', day })}
+            />
           </div>
           <div className="area-insights">
             <ComingSoonCard title={t.insights.title} description={t.insights.soon} />
@@ -326,8 +351,9 @@ export default function Dashboard() {
           data={categoryData}
           state={categories}
           onAdd={addTransaction}
-          onViewAll={() => navigate('/transactions')}
-          onViewDetails={() => navigate('/transactions')}
+          onViewAll={() => openTransactions({ type: 'expense' })}
+          onViewDetails={() => openTransactions({ type: 'expense' })}
+          onSelectCategory={(category) => category && openTransactions({ type: 'expense', category })}
         />
         <ComingSoonCard title={t.payments.title} description={t.payments.soon} />
       </div>

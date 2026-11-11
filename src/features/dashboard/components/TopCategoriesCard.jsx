@@ -8,7 +8,7 @@ import { useCategories } from '../../../hooks/useCategories.js'
 const SIZE = 190
 const pct = (value) => Number(value.toFixed(1))
 
-export default function TopCategoriesCard({ data, state, onViewAll, onViewDetails, onAdd }) {
+export default function TopCategoriesCard({ data, state, onViewAll, onViewDetails, onAdd, onSelectCategory }) {
   const { money } = useFormat()
   const { nameOf } = useCategories()
   const t = APP_TEXT.dashboard.categories
@@ -51,9 +51,10 @@ export default function TopCategoriesCard({ data, state, onViewAll, onViewDetail
                 stroke="none"
                 startAngle={90}
                 endAngle={-270}
+                onClick={onSelectCategory ? (slice) => onSelectCategory(slice?.payload?.key ?? slice?.key) : undefined}
               >
                 {items.map((item) => (
-                  <Cell key={item.key} fill={categoryColor(item.key)} />
+                  <Cell key={item.key} fill={categoryColor(item.key)} className={onSelectCategory ? 'donut-slice-link' : undefined} />
                 ))}
               </Pie>
             </PieChart>
@@ -68,10 +69,19 @@ export default function TopCategoriesCard({ data, state, onViewAll, onViewDetail
           <ul className="cat-list">
             {items.map((item) => (
               <li key={item.key}>
-                <span className="legend-dot" style={{ background: categoryColor(item.key) }} />
-                <span className="cat-name">{nameOf(item.key)}</span>
-                <span className="cat-percent num">{pct(item.percent)}%</span>
-                <span className="cat-amount num">{money(item.amount)}</span>
+                <button
+                  type="button"
+                  className="cat-row-btn"
+                  onClick={() => onSelectCategory?.(item.key)}
+                  disabled={!onSelectCategory}
+                  aria-label={t.viewCategory(nameOf(item.key))}
+                  title={t.viewCategory(nameOf(item.key))}
+                >
+                  <span className="legend-dot" style={{ background: categoryColor(item.key) }} />
+                  <span className="cat-name">{nameOf(item.key)}</span>
+                  <span className="cat-percent num">{pct(item.percent)}%</span>
+                  <span className="cat-amount num">{money(item.amount)}</span>
+                </button>
               </li>
             ))}
           </ul>

@@ -1,4 +1,4 @@
-import { Edit3, Plus, Trash2 } from 'lucide-react'
+import { Edit3, Plus, RefreshCw, Trash2 } from 'lucide-react'
 import { formatGoalDate, formatGoalMoney, goalIcon, goalMetrics } from './goalUtils.js'
 import GoalProgressBar from './GoalProgressBar.jsx'
 import './GoalCard.css'
@@ -24,6 +24,12 @@ export default function GoalCard({ goal, t, currency, timeZone, onEdit, onContri
             {metrics.status === 'COMPLETED' ? t.completed : t[metrics.track]}
           </span>
         </div>
+        {goal.autoSave && goal.autoSaveKeyword && metrics.status !== 'COMPLETED' && (
+          <p className="goal-autosave-badge">
+            <RefreshCw size={13} aria-hidden="true" />
+            {t.autoSaveOn(goal.autoSaveKeyword)}
+          </p>
+        )}
         <GoalProgressBar value={metrics.percentage} label={`${goal.name} ${metrics.percentage}%`} />
         <div className="goal-card-meta">
           <span>

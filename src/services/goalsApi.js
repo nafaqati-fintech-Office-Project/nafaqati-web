@@ -20,6 +20,8 @@ const normalizeGoal = (goal) => {
     currency: goal.currency ?? 'SAR',
     targetDate: goal.targetDate ?? goal.target_date ?? null,
     status: goal.status ?? (savedAmount >= targetAmount ? 'COMPLETED' : 'ACTIVE'),
+    autoSave: Boolean(goal.autoSave),
+    autoSaveKeyword: goal.autoSaveKeyword ?? '',
   }
 }
 
@@ -41,6 +43,11 @@ const buildGoalPayload = (input = {}) => {
     targetDate: input.targetDate ?? null,
   }
   if (input.category) next.category = input.category
+  // Auto-save (goal-service V6): saving transfers read from bank SMS fund the goal; the keyword picks the account
+  if (input.autoSave !== undefined) {
+    next.autoSave = Boolean(input.autoSave)
+    next.autoSaveKeyword = input.autoSaveKeyword?.trim() || null
+  }
   return next
 }
 

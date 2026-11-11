@@ -114,6 +114,8 @@ export async function createGoal(input) {
     createdAt: nowIso(),
     status: input.status ?? 'ACTIVE',
     imageKey: input.imageKey || input.category || 'custom',
+    autoSave: Boolean(input.autoSave),
+    autoSaveKeyword: input.autoSaveKeyword ?? '',
     contributions: [],
   }
   goals = [created, ...goals]

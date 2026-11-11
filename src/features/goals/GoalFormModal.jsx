@@ -13,6 +13,9 @@ function initialValues(goal) {
     targetAmount: goal ? String(goal.targetAmount) : '',
     savedAmount: goal ? String(goal.savedAmount) : '0',
     targetDate: goal?.targetDate ?? '',
+    // New goals save automatically by default: the proposal's "no manual data entry"
+    autoSave: goal ? Boolean(goal.autoSave) : true,
+    autoSaveKeyword: goal?.autoSaveKeyword ?? '',
   }
 }
 
@@ -39,6 +42,7 @@ export default function GoalFormModal({ open, goal, t, currency, timeZone, onClo
     if (targetError) next.targetAmount = targetError
     const targetDateError = dateError(values.targetDate, timeZone, t.form.errors)
     if (targetDateError) next.targetDate = targetDateError
+    if (values.autoSave && !values.autoSaveKeyword.trim()) next.autoSaveKeyword = t.form.errors.keyword
     setErrors(next)
     return next
   }
@@ -57,6 +61,8 @@ export default function GoalFormModal({ open, goal, t, currency, timeZone, onClo
         targetAmount: Number(values.targetAmount),
         currency,
         targetDate: values.targetDate || null,
+        autoSave: values.autoSave,
+        autoSaveKeyword: values.autoSaveKeyword.trim(),
       })
     } catch {
       setSaving(false)
@@ -114,6 +120,33 @@ export default function GoalFormModal({ open, goal, t, currency, timeZone, onClo
           />
           {errors.targetDate && <span className="auth-error">{errors.targetDate}</span>}
         </div>
+        <fieldset className="goal-autosave">
+          <label className="goal-autosave-toggle">
+            <input type="checkbox" checked={values.autoSave} onChange={(e) => set({ autoSave: e.target.checked })} />
+            <span>
+              <strong>{t.form.autoSave.label}</strong>
+              <small>{t.form.autoSave.help}</small>
+            </span>
+          </label>
+          {values.autoSave && (
+            <div className="form-field">
+              <label htmlFor="goal-autosave-keyword">{t.form.autoSave.keyword}</label>
+              <input
+                id="goal-autosave-keyword"
+                value={values.autoSaveKeyword}
+                maxLength={60}
+                placeholder={t.form.autoSave.keywordPlaceholder}
+                onChange={(e) => set({ autoSaveKeyword: e.target.value })}
+                aria-invalid={Boolean(errors.autoSaveKeyword)}
+                aria-describedby="goal-autosave-help"
+              />
+              <small id="goal-autosave-help" className="goal-autosave-help">
+                {t.form.autoSave.keywordHelp}
+              </small>
+              {errors.autoSaveKeyword && <span className="auth-error">{errors.autoSaveKeyword}</span>}
+            </div>
+          )}
+        </fieldset>
         <div className="modal-actions">
           <button type="button" className="btn btn-ghost" onClick={onClose} disabled={saving}>
             {t.form.cancel}

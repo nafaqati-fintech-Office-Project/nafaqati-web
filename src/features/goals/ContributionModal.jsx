@@ -45,6 +45,7 @@ export default function ContributionModal({ goal, t, currency, timeZone, onClose
   return (
     <Modal open={open} onClose={saving ? () => {} : onClose} title={`${t.contribution.title}: ${goal.name}`}>
       <form className="contribution-form" onSubmit={submit} noValidate>
+        {goal.autoSave && <p className="contribution-auto-hint">{t.contribution.autoHint}</p>}
         <div className="form-field">
           <label htmlFor="contribution-amount">{t.contribution.amount}</label>
           <input

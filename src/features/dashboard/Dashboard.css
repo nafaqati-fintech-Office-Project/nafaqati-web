@@ -838,3 +838,91 @@
 
 .badge-amber { display: inline-flex; padding: 3px 8px; border-radius: 999px; background: #fef3c7; color: #b45309; font-size: 12px; font-weight: 700; }
 .badge-red { display: inline-flex; padding: 3px 8px; border-radius: 999px; background: #fee2e2; color: #dc2626; font-size: 12px; font-weight: 700; }
+
+/* Drill-down: stat tiles, category rows/slices and the spending chart open filtered transactions */
+.stat-clickable {
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.stat-clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
+}
+
+button.stat-body {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+button.stat-body:focus-visible,
+.cat-row-btn:focus-visible {
+  outline: 2px solid #1e6bff;
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+.cat-row-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 4px 6px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cat-row-btn:hover:not(:disabled) {
+  background: #f1f5fb;
+}
+
+.cat-row-btn:disabled {
+  cursor: default;
+}
+
+.donut-center {
+  pointer-events: none;
+}
+
+.donut-slice-link {
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.donut-slice-link:hover {
+  opacity: 0.8;
+}
+
+.donut-wrap .recharts-sector:focus,
+.chart-clickable .recharts-surface:focus {
+  outline: none;
+}
+
+.chart-clickable .recharts-wrapper {
+  cursor: pointer;
+}
+
+.safe-top[data-clickable] {
+  cursor: pointer;
+  border-radius: 12px;
+}
+
+.safe-top[data-clickable]:hover .safe-value {
+  text-decoration: underline;
+}
+
+.safe-top[data-clickable]:focus-visible {
+  outline: 2px solid #1e6bff;
+  outline-offset: 4px;
+}

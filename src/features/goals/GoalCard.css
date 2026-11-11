@@ -103,3 +103,13 @@
     min-block-size: 132px;
   }
 }
+
+.goal-autosave-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin: 2px 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #15803d;
+}

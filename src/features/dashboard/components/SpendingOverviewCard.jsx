@@ -31,7 +31,7 @@ function niceAxis(max) {
 }
 
 // data: { points: [{ label, day, expenses }], ticks: [label], total } built from GET /api/reports/daily-spending
-export default function SpendingOverviewCard({ data, state, onAdd }) {
+export default function SpendingOverviewCard({ data, state, onAdd, onSelectDay }) {
   const { money } = useFormat()
   const t = APP_TEXT.dashboard.spending
   const axis = niceAxis(Math.max(0, ...(data?.points ?? []).map((p) => p.expenses)))
@@ -53,9 +53,25 @@ export default function SpendingOverviewCard({ data, state, onAdd }) {
               {t.expenses}
             </li>
           </ul>
-          <div className="chart-box" role="img" aria-label={t.summary(money(data.total))}>
+          <div
+            className={`chart-box${onSelectDay ? ' chart-clickable' : ''}`}
+            role="img"
+            aria-label={t.summary(money(data.total))}
+            title={onSelectDay ? t.clickHint : undefined}
+          >
             <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-              <AreaChart data={data.points} margin={{ top: 8, right: 12, left: -8, bottom: 0 }}>
+              <AreaChart
+                data={data.points}
+                margin={{ top: 8, right: 12, left: -8, bottom: 0 }}
+                onClick={
+                  onSelectDay
+                    ? (e) => {
+                        const day = e?.activePayload?.[0]?.payload?.day ?? data.points[Number(e?.activeTooltipIndex)]?.day
+                        if (day) onSelectDay(day)
+                      }
+                    : undefined
+                }
+              >
                 <defs>
                   <linearGradient id="spendFill" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor={COLORS.stroke} stopOpacity={0.5} />

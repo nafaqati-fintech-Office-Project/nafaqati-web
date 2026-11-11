@@ -1,10 +1,25 @@
 import { useState } from 'react'
-import { ChevronLeft, ChevronRight, FileDown } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { ChevronLeft, ChevronRight, FileDown, FileSpreadsheet } from 'lucide-react'
 import { useFormat } from '../../hooks/useFormat.js'
 import { useReports } from '../../hooks/useReports.js'
-import { currentMonth, todayKey } from '../../utils/dateRange.js'
+import { currentMonth, previousMonth, todayKey } from '../../utils/dateRange.js'
+import { transactionsLink } from '../../utils/transactionLinks.js'
 import { monthLabel } from '../analytics/analyticsUtils.js'
-import { CategorySection, ComparisonSection, LifestyleSection, MerchantSection, SavingsSection, SummarySection } from './ReportSections.jsx'
+import {
+  CategorySection,
+  ComparisonSection,
+  DebtSection,
+  LifestyleSection,
+  MerchantSection,
+  MovementSection,
+  PaymentMethodsSection,
+  SavingsSection,
+  SummarySection,
+  WeeklySection,
+} from './ReportSections.jsx'
+import { useCategories } from '../../hooks/useCategories.js'
+import { reportCsv, spendingItems } from './reportUtils.js'
 import { useReportsText } from './useReportsText.js'
 import '../analytics/Analytics.css'
 import '../analytics/AnalyticsHeader.css'
@@ -28,6 +43,10 @@ export default function Reports() {
   const { comparison, trend, expenses, currencies, currency, setCurrency } = useReports(selected)
   const today = todayKey(timeZone)
   const others = currencies.filter((c) => c !== currency)
+  // Every card, row and bar opens the Transactions page filtered to what it shows (defaults to the selected month)
+  const navigate = useNavigate()
+  const open = (filters = {}) => navigate(transactionsLink({ month: selected, ...filters }))
+  const prevMonth = previousMonth(selected)
   const Back = dir === 'rtl' ? ChevronRight : ChevronLeft
   const Forward = dir === 'rtl' ? ChevronLeft : ChevronRight
 
@@ -44,6 +63,18 @@ export default function Reports() {
     }
     window.addEventListener('afterprint', restore)
     window.print()
+  }
+
+  // The month's spending rows as a CSV file that opens in Excel
+  const { nameOf } = useCategories()
+  const exportCsv = () => {
+    const csv = reportCsv(spendingItems(expenses.data?.items), currency, t.csv, nameOf, timeZone)
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }))
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `Nafaqati-Report-${selected}.csv`
+    link.click()
+    URL.revokeObjectURL(url)
   }
 
   return (
@@ -72,6 +103,10 @@ export default function Reports() {
               ))}
             </select>
           )}
+          <button type="button" className="rp-export" onClick={exportCsv} disabled={!ready || !currency} title={t.exportCsvHint}>
+            <FileSpreadsheet size={16} aria-hidden="true" />
+            {t.exportCsv}
+          </button>
           <button type="button" className="rp-export" onClick={exportPdf} disabled={!ready} title={t.exportHint}>
             <FileDown size={16} aria-hidden="true" />
             {t.exportPdf}
@@ -85,12 +120,16 @@ export default function Reports() {
         </p>
       )}
       <div className="rp-grid">
-        <SummarySection comparison={comparison} expenses={expenses} currency={currency} month={selected} today={today} />
-        <CategorySection comparison={comparison} currency={currency} />
-        <MerchantSection expenses={expenses} currency={currency} />
-        <LifestyleSection comparison={comparison} currency={currency} />
-        <SavingsSection comparison={comparison} currency={currency} />
-        <ComparisonSection comparison={comparison} trend={trend} currency={currency} locale={locale} />
+        <SummarySection comparison={comparison} expenses={expenses} currency={currency} month={selected} today={today} open={open} />
+        <CategorySection comparison={comparison} currency={currency} open={open} />
+        <MerchantSection expenses={expenses} currency={currency} open={open} />
+        <WeeklySection expenses={expenses} currency={currency} month={selected} timeZone={timeZone} locale={locale} open={open} />
+        <PaymentMethodsSection expenses={expenses} currency={currency} open={open} />
+        <MovementSection comparison={comparison} currency={currency} open={open} />
+        <LifestyleSection comparison={comparison} currency={currency} open={open} />
+        <SavingsSection comparison={comparison} currency={currency} open={open} prevMonth={prevMonth} />
+        <DebtSection comparison={comparison} currency={currency} open={open} />
+        <ComparisonSection comparison={comparison} trend={trend} currency={currency} locale={locale} open={open} prevMonth={prevMonth} />
       </div>
     </div>
   )
