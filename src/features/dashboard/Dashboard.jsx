@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { Cloud, Flag, HeartPulse, Moon, PiggyBank, Plus, ScanLine, Search, ShoppingBag, Sparkles, Sun, Sunset, Users, Wallet } from 'lucide-react'
+import { Cloud, FileText, Flag, HeartPulse, Moon, PiggyBank, Plus, Search, ShoppingBag, Sparkles, Sun, Sunset, Users, Wallet } from 'lucide-react'
 import { useUser } from '../../hooks/useUser.js'
 import { useFormat } from '../../hooks/useFormat.js'
 import { useDashboardData } from '../../hooks/useDashboardData.js'
@@ -20,6 +20,9 @@ import SpendingOverviewCard from './components/SpendingOverviewCard.jsx'
 import QuickActions from './components/QuickActions.jsx'
 import TopCategoriesCard from './components/TopCategoriesCard.jsx'
 import ComingSoonCard from './components/ComingSoonCard.jsx'
+import { financialHealth } from './financialHealth.js'
+import InsightsCard from './components/InsightsCard.jsx'
+import UpcomingPaymentsCard from './components/UpcomingPaymentsCard.jsx'
 import './Dashboard.css'
 
 const GREETING_ICONS = {
@@ -30,14 +33,13 @@ const GREETING_ICONS = {
 }
 
 const t = APP_TEXT.dashboard
-// Only actions without backend support are labelled "Coming soon"
 const QUICK_ACTIONS = [
   { id: 'add-expense', label: t.quickActions.addExpense, icon: Plus, tone: 'green' },
-  { id: 'scan-receipt', label: t.quickActions.scanReceipt, icon: ScanLine, tone: 'blue', disabled: true },
-  { id: 'ask', label: t.quickActions.askNafaqati, icon: Sparkles, tone: 'purple', disabled: true },
+  { id: 'ask', label: t.quickActions.askNafaqati, icon: Sparkles, tone: 'purple' },
   { id: 'set-budget', label: t.quickActions.setBudget, icon: Wallet, tone: 'orange' },
   { id: 'new-goal', label: t.quickActions.newGoal, icon: Flag, tone: 'violet' },
-  { id: 'manage-family', label: t.quickActions.manageFamily, icon: Users, tone: 'blue', disabled: true },
+  { id: 'manage-family', label: t.quickActions.manageFamily, icon: Users, tone: 'blue' },
+  { id: 'reports', label: t.quickActions.reports, icon: FileText, tone: 'teal' },
 ]
 
 // % change vs the previous month; hidden (null) when the previous value is zero
@@ -174,6 +176,9 @@ export default function Dashboard() {
     if (id === 'add-expense') addTransaction()
     if (id === 'set-budget') navigate(currentBudget.data ? '/budgets' : '/budgets?create=1')
     if (id === 'new-goal') navigate('/goals')
+    if (id === 'ask') navigate('/ai-assistant')
+    if (id === 'manage-family') navigate('/family')
+    if (id === 'reports') navigate('/reports')
   }
   // Drill-down from a tile/graph to the Transactions page, scoped to the selected month (or one day of it).
   // Transactions reads these straight from the URL (type / category / range=custom&from&to).
@@ -201,6 +206,8 @@ export default function Dashboard() {
   const incomeTrend = trendOf(income, prevIncome)
   const spendingTrend = trendOf(spending, prevSpending)
   const savingsTrend = trendOf(savings, prevIncome - prevSpending)
+
+  const health = financialHealth({ income, spending, prevSpending, comparable, budget: currentBudget.data })
 
   const otherCurrencies = (current.data?.currencies ?? [])
     .filter((c) => c.currency !== currency && (Number(c.totalIncome) > 0 || Number(c.totalExpenses) > 0))
@@ -325,7 +332,15 @@ export default function Dashboard() {
             trendLabel={trendLabel}
             actionLabel={t.stats.viewSavings(monthLabel)}
           />
-          <StatCard soon icon={HeartPulse} tone="teal" label={t.stats.health} />
+          <StatCard
+            state={{ loading: current.loading, error: current.error, retry: current.retry }}
+            icon={HeartPulse}
+            tone={health?.tone ?? 'teal'}
+            label={t.stats.health}
+            value={health ? `${health.score}/100` : t.stats.healthEmpty}
+            note={health ? t.stats.healthLevels[health.key] : t.stats.healthHint}
+            actionLabel={t.stats.viewHealth}
+          />
         </div>
 
         <div className="dash-row2">
@@ -355,7 +370,14 @@ export default function Dashboard() {
             />
           </div>
           <div className="area-insights">
-            <ComingSoonCard title={t.insights.title} description={t.insights.soon} />
+            <InsightsCard
+              spending={spending}
+              prevSpending={prevSpending}
+              comparable={comparable}
+              categories={categoryData}
+              daily={spendingData}
+              states={[current, previous, categories, daily]}
+            />
           </div>
         </div>
 
@@ -371,7 +393,7 @@ export default function Dashboard() {
           onViewDetails={() => openTransactions({ type: 'expense' })}
           onSelectCategory={(category) => category && openTransactions({ type: 'expense', category })}
         />
-        <ComingSoonCard title={t.payments.title} description={t.payments.soon} />
+        <UpcomingPaymentsCard />
       </div>
     </div>
   )

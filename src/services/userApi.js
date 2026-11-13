@@ -10,6 +10,19 @@ export const getMe = () => api.get(BASE).then((res) => res.data)
 // (lastName, phone, avatarUrl, dateOfBirth); a field can't be both set and cleared.
 export const updateMe = (changes) => api.put(BASE, changes).then((res) => res.data)
 
+// Profile picture: the file is sent as multipart ("file"); the server resizes it to a small square JPEG and returns
+// the new avatarUrl, a path on this API (the picture is private: load it with fetchAvatar, never as a plain <img>).
+export const uploadAvatar = (file) => {
+  const body = new FormData()
+  body.append('file', file)
+  return api.post(`${BASE}/avatar`, body).then((res) => res.data)
+}
+
+export const deleteAvatar = () => api.delete(`${BASE}/avatar`)
+
+// Object URL for a picture stored by this API (an avatarUrl starting with /api/)
+export const fetchAvatar = (url) => api.get(url, { responseType: 'blob' }).then((res) => URL.createObjectURL(res.data))
+
 // 404 "User preferences not found" is the normal first-time state: resolve null, not an error
 export async function getPreferences() {
   try {

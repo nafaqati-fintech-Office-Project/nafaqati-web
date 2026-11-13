@@ -249,6 +249,21 @@
   box-shadow: 0 14px 40px rgba(15, 27, 61, 0.18);
 }
 
+.topbar-help-pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 30;
+  width: 220px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 14px 40px rgba(15, 27, 61, 0.18);
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--navy);
+}
+
 .topbar-menu-user {
   display: flex;
   flex-direction: column;

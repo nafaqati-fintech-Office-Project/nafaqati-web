@@ -73,6 +73,8 @@
 
 .dash-search:focus-within,
 .dash-month:focus-within {
+  position: relative;
+  z-index: 1;
   border-radius: 12px;
   box-shadow: 0 0 0 2px var(--primary);
 }
@@ -105,8 +107,14 @@
 
 .dash-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
+}
+
+@media (max-width: 479px) {
+  .dash-stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .dash-row2 {
@@ -303,6 +311,8 @@
   font-weight: 800;
   color: var(--navy);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .stat-value small {
@@ -508,7 +518,7 @@
 /* Quick actions */
 .quick {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 8px;
   padding: 12px;
 }
@@ -619,6 +629,28 @@
   color: var(--navy);
 }
 
+/* AI insights */
+.insight-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+}
+
+.insight-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--navy);
+}
+
+.insight-row .pay-icon {
+  width: 36px;
+  height: 36px;
+}
+
 /* Upcoming payments */
 .pay-list {
   display: flex;
@@ -726,7 +758,7 @@
   }
 
   .quick {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -799,12 +831,24 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 12px;
-  padding: 14px 18px;
-  border-radius: 14px;
+  gap: 8px 12px;
+  padding: 8px 8px 8px 16px;
+  border-radius: 12px;
   background: #eef3ff;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--navy);
+}
+
+.dash-empty p {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.dash-empty .btn {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  font-size: 13px;
+  white-space: nowrap;
 }
 
 .dc-cta {
@@ -954,3 +998,4 @@ button.stat-body:focus-visible,
     border-radius: 0 0 12px 12px;
   }
 }
+

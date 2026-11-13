@@ -7,11 +7,11 @@ import { getErrorInfo } from '../../lib/errors.js'
 import { updatePreferences } from '../../services/userApi.js'
 import { COUNTRIES, CURRENCIES } from '../../constants/currencies.js'
 import NotificationSettings from '../notifications/NotificationSettings.jsx'
-import { BUDGET_DAYS, LANGUAGES, THEMES, TIMEZONES } from './preferenceOptions.js'
+import { BUDGET_DAYS, LANGUAGES, TIMEZONES } from './preferenceOptions.js'
 import './Settings.css'
 
 const t = APP_TEXT.settings
-const FIELDS = ['language', 'country', 'currency', 'timezone', 'budgetCycleDay', 'theme']
+const FIELDS = ['language', 'country', 'currency', 'timezone', 'budgetCycleDay']
 
 // Form state from the saved preferences. country/currency are always upper case.
 function toForm(base) {
@@ -21,7 +21,6 @@ function toForm(base) {
     currency: base.currency.toUpperCase(),
     timezone: base.timezone,
     budgetCycleDay: String(base.budgetCycleDay),
-    theme: base.theme,
     emailNotifications: base.notificationSettings?.email ?? true,
   }
 }
@@ -70,7 +69,7 @@ function PreferencesForm({ prefs, onSaved }) {
       setValues(toForm(saved))
       setDone(true)
       onSaved(saved)
-      // TODO: apply `theme` (dark mode styles) and `language` (i18n/RTL) once the app supports them
+      // TODO: apply `language` (i18n/RTL) once the app supports them
     } catch (err) {
       const info = getErrorInfo(err, 'preferences')
       setErrors({ ...info.fieldErrors, form: info.message })
@@ -115,7 +114,6 @@ function PreferencesForm({ prefs, onSaved }) {
         {select('currency', t.currency, withCurrent(CURRENCIES, values.currency).map((c) => [c, c]), t.currencyNote)}
         {select('timezone', t.timezone, withCurrent(TIMEZONES, values.timezone).map((z) => [z, z]))}
         {select('budgetCycleDay', t.budgetCycleDay, BUDGET_DAYS.map((d) => [String(d), String(d)]), t.budgetCycleHint)}
-        {select('theme', t.theme, withCurrent(THEMES, values.theme).map((v) => [v, t.themes[v] ?? v]))}
       </div>
 
       <h3 className="settings-sub">{t.notifications}</h3>

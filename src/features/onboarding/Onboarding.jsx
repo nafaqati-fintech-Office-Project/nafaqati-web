@@ -106,10 +106,6 @@ function OnboardingForm({ onDone }) {
             <dd>{t.budgetCycleValue(auto.budgetCycleDay)}</dd>
           </div>
           <div>
-            <dt>{t.theme}</dt>
-            <dd>{t.themeValue}</dd>
-          </div>
-          <div>
             <dt>{t.notifications}</dt>
             <dd>{t.notificationsValue}</dd>
           </div>
