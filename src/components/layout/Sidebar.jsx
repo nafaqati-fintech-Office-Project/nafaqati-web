@@ -36,13 +36,13 @@ export default function Sidebar({ open, onClose }) {
           ))}
         </nav>
 
-        <div className="sidebar-upgrade" title={sidebar.upgradeTitle}>
+        <NavLink to="/plans" className="sidebar-upgrade" title={sidebar.upgradeTitle} onClick={onClose}>
           <Crown size={22} aria-hidden="true" />
           <div className="sidebar-upgrade-text">
             <strong>{sidebar.upgradeTitle}</strong>
             <span>{sidebar.upgradeSubtitle}</span>
           </div>
-        </div>
+        </NavLink>
       </aside>
     </>
   )

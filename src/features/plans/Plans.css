@@ -1,0 +1,203 @@
+.plan-current {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.plan-current > svg {
+  flex-shrink: 0;
+  color: #fbbf24;
+}
+
+.plan-current h2 {
+  margin: 2px 0 4px;
+  font-size: 20px;
+  color: var(--navy);
+}
+
+.plan-current p {
+  margin: 2px 0 0;
+  font-size: 14px;
+  color: #5b6478;
+}
+
+.plan-current-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #5b6478;
+}
+
+.plan-current.is-premium {
+  background: linear-gradient(135deg, #0f1b3d, #1c2f6b);
+}
+
+.plan-current.is-premium h2,
+.plan-current.is-premium p,
+.plan-current.is-premium .plan-current-label {
+  color: #fff;
+}
+
+.plan-warning {
+  font-weight: 600;
+  color: #fbbf24 !important;
+}
+
+.plan-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.plan-table th,
+.plan-table td {
+  padding: 12px 8px;
+  border-bottom: 1px solid #e6eaf2;
+  text-align: center;
+}
+
+.plan-table thead th {
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.plan-table th[scope='row'],
+.plan-table thead th:first-child {
+  text-align: start;
+  font-weight: 500;
+}
+
+.plan-premium-col {
+  color: var(--primary) !important;
+}
+
+.plan-yes {
+  color: #16a34a;
+}
+
+.plan-no {
+  color: #b6bdcc;
+}
+
+.plan-limit {
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.plan-offer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.plan-intervals {
+  display: inline-flex;
+  padding: 4px;
+  border-radius: 999px;
+  background: #eef1f7;
+}
+
+.plan-interval {
+  padding: 8px 18px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font-weight: 600;
+  color: #5b6478;
+  cursor: pointer;
+}
+
+.plan-interval.is-active {
+  background: #fff;
+  color: var(--navy);
+  box-shadow: 0 1px 4px rgba(15, 27, 61, 0.12);
+}
+
+.plan-interval:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.plan-price {
+  margin: 0;
+  color: #5b6478;
+}
+
+.plan-price strong {
+  font-size: 28px;
+  color: var(--navy);
+}
+
+.plan-save {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #16a34a;
+}
+
+.plan-error {
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fdecec;
+  font-size: 14px;
+  color: #b42318;
+}
+
+.sidebar-upgrade {
+  text-decoration: none;
+}
+
+.sidebar-upgrade:focus-visible {
+  outline: 2px solid #fbbf24;
+  outline-offset: 2px;
+}
+
+.upgrade-prompt {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #0f1b3d, #1c2f6b);
+  color: #fff;
+}
+
+.upgrade-prompt > svg {
+  flex-shrink: 0;
+  color: #fbbf24;
+}
+
+.upgrade-prompt > div {
+  flex: 1;
+}
+
+.upgrade-prompt strong {
+  display: block;
+  font-size: 15px;
+}
+
+.upgrade-prompt p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.upgrade-prompt.is-compact {
+  padding: 10px 14px;
+  margin-bottom: 12px;
+}
+
+.upgrade-prompt a {
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .upgrade-prompt {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

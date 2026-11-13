@@ -1,6 +1,9 @@
 import { useSearchParams } from 'react-router-dom'
 import { useAnalytics } from '../../hooks/useAnalytics.js'
 import { useFormat } from '../../hooks/useFormat.js'
+import { usePlan } from '../../hooks/usePlan.js'
+import { APP_TEXT } from '../../constants/appText.js'
+import UpgradePrompt from '../../components/ui/UpgradePrompt.jsx'
 import { currentMonthPeriod, periodFromParams, wholeMonth } from '../../utils/period.js'
 import AnalyticsHeader from './AnalyticsHeader.jsx'
 import KpiCards from './KpiCards.jsx'
@@ -13,6 +16,19 @@ import './Analytics.css'
 
 // The period lives in the URL (?from=&to=), so Back from a drill-down keeps it; default: this month
 export default function Analytics() {
+  const { can, loading } = usePlan()
+  // Analytics (trends, categories, patterns, comparisons) is Premium; the server refuses its data to a Free user.
+  if (!loading && !can('reports.advanced')) {
+    return (
+      <div className="analytics">
+        <UpgradePrompt title={APP_TEXT.plans.analyticsUpgradeTitle} body={APP_TEXT.plans.analyticsUpgradeBody} />
+      </div>
+    )
+  }
+  return <AnalyticsRoute />
+}
+
+function AnalyticsRoute() {
   const { timeZone } = useFormat()
   const [params, setParams] = useSearchParams()
   const period = periodFromParams(params, currentMonthPeriod(timeZone))

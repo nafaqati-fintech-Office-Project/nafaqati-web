@@ -26,6 +26,7 @@ const Notifications = lazy(() => import('./features/notifications/NotificationsP
 const Subscriptions = lazy(() => import('./features/subscriptions/Subscriptions.jsx'))
 const Reports = lazy(() => import('./features/reports/Reports.jsx'))
 const Settings = lazy(() => import('./features/settings/Settings.jsx'))
+const Plans = lazy(() => import('./features/plans/Plans.jsx'))
 
 function HomeRedirect() {
   const { isInitializing, isAuthenticated } = useAuth()
@@ -142,6 +143,14 @@ export default function App() {
   element={
     <Suspense fallback={<AuthLoader />}>
       <Reports />
+    </Suspense>
+  }
+/>
+<Route
+  path="/plans"
+  element={
+    <Suspense fallback={<AuthLoader />}>
+      <Plans />
     </Suspense>
   }
 />

@@ -46,3 +46,19 @@ export async function getPeriodComparison({ period, previous, month, timeZone })
   ])
   return buildPeriodComparison({ income, spending, previousIncome, previousSpending })
 }
+
+// Premium: the server builds the PDF or Excel file (it checks the plan) and the browser saves it. A 403 means the plan
+// does not include exports. kind: 'pdf' | 'xlsx'.
+export async function downloadReportExport(kind, { from, to, timeZone }) {
+  const res = await api.get(`/api/reports/export/${kind}`, {
+    params: { startDate: from, endDate: to, timeZone: resolveTimeZone(timeZone) },
+    responseType: 'blob',
+    timeout: 60000,
+  })
+  const url = URL.createObjectURL(res.data)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `Nafaqati-Report-${from}-to-${to}.${kind}`
+  link.click()
+  URL.revokeObjectURL(url)
+}

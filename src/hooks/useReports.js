@@ -15,19 +15,21 @@ export const MERCHANT_ROW_CAP = 500
 //   trend:      the 6 months ending with the period's last month
 //   expenses:   the period's completed expenses (merchants, count, biggest); capped at MERCHANT_ROW_CAP rows
 // Every response lists all currencies, so switching currency is a client-side selection.
-export function useReports(period) {
+export function useReports(period, advanced = true) {
   const { timeZone, currency: preferred } = useFormat()
-  const key = `${period.from}:${period.to}:${timeZone}`
+  const key = `${period.from}:${period.to}:${timeZone}:${advanced}`
   const month = wholeMonth(period)
   const { from, to } = period
 
   const comparison = useAsync(
-    () => reportsApi.getPeriodComparison({ period, previous: previousPeriod(period), month, timeZone }),
+    // The Free plan builds the same shape from the basic range reports (the monthly comparison is Premium).
+    () => reportsApi.getPeriodComparison({ period, previous: previousPeriod(period), month: advanced ? month : null, timeZone }),
     `rc:${key}`,
   )
   const trend = useAsync(
-    () => reportsApi.getMonthlyTrend({ endMonth: to.slice(0, 7), months: REPORT_TREND_MONTHS, timeZone }),
-    `rt:${to.slice(0, 7)}:${timeZone}`,
+    // The trend is Premium: a Free user's page never asks for it.
+    () => (advanced ? reportsApi.getMonthlyTrend({ endMonth: to.slice(0, 7), months: REPORT_TREND_MONTHS, timeZone }) : Promise.resolve(null)),
+    `rt:${to.slice(0, 7)}:${timeZone}:${advanced}`,
   )
   const expenses = useAsync(
     () => listAllTransactions({ type: 'EXPENSE', status: 'COMPLETED', from, to, timeZone, sort: 'transactionDate,desc' }, MERCHANT_ROW_CAP),

@@ -9,6 +9,9 @@ import { useCategories } from '../../hooks/useCategories.js'
 import { useFormat } from '../../hooks/useFormat.js'
 import { useMediaQuery } from '../../hooks/useMediaQuery.js'
 import { useToast } from '../../hooks/useToast.js'
+import { usePlan } from '../../hooks/usePlan.js'
+import UpgradePrompt from '../../components/ui/UpgradePrompt.jsx'
+import { useNavigate } from 'react-router-dom'
 import { PAGE_SIZES, toApiParams, useTransactionFilters } from '../../hooks/useTransactionFilters.js'
 import { getErrorInfo } from '../../lib/errors.js'
 import * as transactionApi from '../../services/transactionApi.js'
@@ -41,11 +44,18 @@ export default function Transactions() {
   const { categories, nameOf } = categoriesState
   const [searchParams, setSearchParams] = useSearchParams()
   const { filters, setFilters, clearFilters, hasActiveFilters } = useTransactionFilters()
-  const apiParams = useMemo(() => toApiParams(filters, fmt.timeZone), [filters, fmt.timeZone])
+  const { can, loading: planLoading, entitlements } = usePlan()
+  const canFilterCards = can('transactions.card_filter')
+  const navigate = useNavigate()
+  // A card in the URL means nothing to a Free user (the server would refuse it), so it is left out of the request.
+  const apiParams = useMemo(() => {
+    const params = toApiParams(filters, fmt.timeZone)
+    return canFilterCards ? params : { ...params, card: undefined }
+  }, [filters, fmt.timeZone, canFilterCards])
   // Server-side search, filters, sort and pagination; responses for outdated params are ignored
   const list = useAsync(() => transactionApi.listTransactions(apiParams), JSON.stringify(apiParams))
   // The Card filter's choices; a failure only hides that filter
-  const cards = useAsync(() => transactionApi.getCards().catch(() => []), 'tx-cards')
+  const cards = useAsync(() => (canFilterCards ? transactionApi.getCards().catch(() => []) : Promise.resolve([])), `tx-cards:${canFilterCards}`)
   const isMobile = useMediaQuery('(max-width: 767px)')
 
   const [details, setDetails] = useState(null)
@@ -122,6 +132,8 @@ export default function Transactions() {
   )
 
   const exportCsv = async () => {
+    // Exports are Premium; this one is built in the browser, so the lock here is only the page's (the report exports are server-checked).
+    if (!can('reports.export')) return navigate('/plans')
     setExporting(true)
     try {
       const { items, capped, totalItems } = await transactionApi.listAllTransactions(apiParams)
@@ -182,6 +194,9 @@ export default function Transactions() {
         onExport={exportCsv}
       />
 
+      {!planLoading && typeof entitlements['history.days'] === 'number' && (
+        <UpgradePrompt compact title={APP_TEXT.plans.historyLimited(entitlements['history.days'])} />
+      )}
       <section className="tx-card" aria-label={t.table.label}>
         {loadError ? (
           <StateCard icon={CircleAlert} title={t.error.title} body={loadError}>
