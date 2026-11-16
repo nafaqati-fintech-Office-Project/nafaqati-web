@@ -11,9 +11,12 @@
 .tone-solid-purple { background: linear-gradient(135deg, #a855f7, #7b3ff2); color: #fff; }
 .tone-solid-violet { background: linear-gradient(135deg, #8b5cf6, #6d3be8); color: #fff; }
 .tone-solid-orange { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #fff; }
+.tone-solid-teal { background: linear-gradient(135deg, #2dd4bf, #0d9488); color: #fff; }
 .tone-solid-red { background: linear-gradient(135deg, #f87171, #ef4444); color: #fff; }
 .text-green { color: #16a34a; }
 .text-red { color: #ef4444; }
+.text-teal { color: #0d9488; }
+.text-orange { color: #d97706; }
 
 .num { font-variant-numeric: tabular-nums; }
 
@@ -378,3 +381,51 @@
 }
 .form-field select:focus { outline: 2px solid var(--primary); border-color: var(--primary); }
 .form-field select[aria-invalid='true'] { border-color: var(--danger); }
+
+/* Premium upsell box (used on Reports, Analytics, Transactions): lives here so it is styled on every page */
+.upgrade-prompt {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #0f1b3d, #1c2f6b);
+  color: #fff;
+}
+
+.upgrade-prompt > svg {
+  flex-shrink: 0;
+  color: #fbbf24;
+}
+
+.upgrade-prompt > div {
+  flex: 1;
+}
+
+.upgrade-prompt strong {
+  display: block;
+  font-size: 15px;
+}
+
+.upgrade-prompt p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.upgrade-prompt.is-compact {
+  padding: 10px 14px;
+  margin-bottom: 12px;
+}
+
+.upgrade-prompt a {
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .upgrade-prompt {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

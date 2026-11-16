@@ -1,7 +1,13 @@
+import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { FileDown, FileSpreadsheet } from 'lucide-react'
 import { useFormat } from '../../hooks/useFormat.js'
+import { usePlan } from '../../hooks/usePlan.js'
 import { useReports } from '../../hooks/useReports.js'
+import { useToast } from '../../hooks/useToast.js'
+import { APP_TEXT } from '../../constants/appText.js'
+import { downloadReportExport } from '../../services/reportsApi.js'
+import UpgradePrompt from '../../components/ui/UpgradePrompt.jsx'
 import { todayKey } from '../../utils/dateRange.js'
 import { currentMonthPeriod, periodFromParams, previousPeriod, wholeMonth } from '../../utils/period.js'
 import { transactionsLink } from '../../utils/transactionLinks.js'
@@ -18,8 +24,6 @@ import {
   SummarySection,
   WeeklySection,
 } from './ReportSections.jsx'
-import { useCategories } from '../../hooks/useCategories.js'
-import { reportCsv, spendingItems } from './reportUtils.js'
 import { ReportRangeContext, useReportsText } from './useReportsText.js'
 import '../analytics/Analytics.css'
 import '../analytics/AnalyticsHeader.css'
@@ -56,8 +60,13 @@ export default function Reports() {
 
 function ReportsPage({ period, timeZone, onPeriod }) {
   const { t, dir, locale, lang } = useReportsText()
-  const selected = wholeMonth(period) ?? `${period.from}_${period.to}`
-  const { comparison, trend, expenses, currencies, currency, setCurrency } = useReports(period)
+  const { can } = usePlan()
+  // Free: the basic report (income, expenses, balance, spending summary). The rest is Premium.
+  const advanced = can('reports.advanced')
+  const canExport = can('reports.export')
+  const toast = useToast()
+  const [exporting, setExporting] = useState(false)
+  const { comparison, trend, expenses, currencies, currency, setCurrency } = useReports(period, advanced)
   const today = todayKey(timeZone)
   const others = currencies.filter((c) => c !== currency)
   // Every card, row and bar opens the Transactions page filtered to what it shows
@@ -70,28 +79,18 @@ function ReportsPage({ period, timeZone, onPeriod }) {
   // Only a loaded report is exported, so the PDF never has half the data
   const ready = !comparison.loading && !comparison.error && !trend.loading && !expenses.loading
 
-  // The browser's print dialog saves a PDF; the page title becomes the suggested file name
-  const exportPdf = () => {
-    const previousTitle = document.title
-    document.title = `Nafaqati-Report-${selected}`
-    const restore = () => {
-      document.title = previousTitle
-      window.removeEventListener('afterprint', restore)
+  // PDF and Excel are built by the server, which checks the plan. A Free user is sent to the Plans page instead.
+  const exportFile = async (kind) => {
+    if (!canExport) return navigate('/plans')
+    setExporting(true)
+    try {
+      await downloadReportExport(kind, { ...period, timeZone })
+    } catch (err) {
+      if (err?.response?.status === 403) navigate('/plans')
+      else toast.error(APP_TEXT.plans.exportFailed)
+    } finally {
+      setExporting(false)
     }
-    window.addEventListener('afterprint', restore)
-    window.print()
-  }
-
-  // The month's spending rows as a CSV file that opens in Excel
-  const { nameOf } = useCategories()
-  const exportCsv = () => {
-    const csv = reportCsv(spendingItems(expenses.data?.items), currency, t.csv, nameOf, timeZone)
-    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }))
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `Nafaqati-Report-${selected}.csv`
-    link.click()
-    URL.revokeObjectURL(url)
   }
 
   return (
@@ -112,11 +111,11 @@ function ReportsPage({ period, timeZone, onPeriod }) {
               ))}
             </select>
           )}
-          <button type="button" className="rp-export" onClick={exportCsv} disabled={!ready || !currency} title={t.exportCsvHint}>
+          <button type="button" className="rp-export" onClick={() => exportFile('xlsx')} disabled={!ready || !currency || exporting} title={t.exportCsvHint}>
             <FileSpreadsheet size={16} aria-hidden="true" />
-            {t.exportCsv}
+            {t.exportExcel}
           </button>
-          <button type="button" className="rp-export" onClick={exportPdf} disabled={!ready} title={t.exportHint}>
+          <button type="button" className="rp-export" onClick={() => exportFile('pdf')} disabled={!ready || exporting}>
             <FileDown size={16} aria-hidden="true" />
             {t.exportPdf}
           </button>
@@ -130,15 +129,21 @@ function ReportsPage({ period, timeZone, onPeriod }) {
       )}
       <div className="rp-grid">
         <SummarySection comparison={comparison} expenses={expenses} currency={currency} period={period} timeZone={timeZone} open={open} />
-        <CategorySection comparison={comparison} currency={currency} open={open} />
-        <MerchantSection expenses={expenses} currency={currency} open={open} />
-        <WeeklySection expenses={expenses} currency={currency} period={period} timeZone={timeZone} locale={locale} open={open} />
-        <PaymentMethodsSection expenses={expenses} currency={currency} open={open} />
-        <MovementSection comparison={comparison} currency={currency} open={open} />
-        <LifestyleSection comparison={comparison} currency={currency} open={open} />
-        <SavingsSection comparison={comparison} currency={currency} open={open} previous={previous} />
-        <DebtSection comparison={comparison} currency={currency} open={open} />
-        <ComparisonSection comparison={comparison} trend={trend} currency={currency} locale={locale} open={open} previous={previous} />
+        {advanced ? (
+          <>
+            <CategorySection comparison={comparison} currency={currency} open={open} />
+            <MerchantSection expenses={expenses} currency={currency} open={open} />
+            <WeeklySection expenses={expenses} currency={currency} period={period} timeZone={timeZone} locale={locale} open={open} />
+            <PaymentMethodsSection expenses={expenses} currency={currency} open={open} />
+            <MovementSection comparison={comparison} currency={currency} open={open} />
+            <LifestyleSection comparison={comparison} currency={currency} open={open} />
+            <SavingsSection comparison={comparison} currency={currency} open={open} previous={previous} />
+            <DebtSection comparison={comparison} currency={currency} open={open} />
+            <ComparisonSection comparison={comparison} trend={trend} currency={currency} locale={locale} open={open} previous={previous} />
+          </>
+        ) : (
+          <UpgradePrompt title={APP_TEXT.plans.reportsUpgradeTitle} body={APP_TEXT.plans.reportsUpgradeBody} />
+        )}
       </div>
     </div>
   )

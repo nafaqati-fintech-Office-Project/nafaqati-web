@@ -1,4 +1,29 @@
-.subs-form { display: flex; flex-direction: column; gap: 14px; }
-.subs-form-pair { display: grid; grid-template-columns: 1fr 120px; gap: 12px; }
+/* Same field look as the other modals (goal / budget forms) */
+.subs-form { display: flex; flex-direction: column; gap: 15px; padding: 18px 20px 0; }
+.subs-form-pair { display: grid; grid-template-columns: minmax(0, 1fr) 120px; gap: 12px; }
 .subs-form-pair:has(> :only-child) { grid-template-columns: 1fr; }
+.subs-form .form-field { min-width: 0; }
+
+.subs-form input,
+.subs-form select {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.subs-form input:focus,
+.subs-form select:focus {
+  outline: 2px solid var(--primary);
+  border-color: var(--primary);
+}
+
+.subs-form input[aria-invalid='true'],
+.subs-form select[aria-invalid='true'] { border-color: var(--danger); }
+
+.subs-form .modal-actions { padding-inline: 0; }
+
 @media (max-width: 480px) { .subs-form-pair { grid-template-columns: 1fr; } }

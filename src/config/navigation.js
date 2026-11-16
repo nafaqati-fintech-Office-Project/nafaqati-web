@@ -15,6 +15,7 @@ import {
 export const EXTRA_PAGES = [
   { key: 'profile', path: '/profile' },
   { key: 'notifications', path: '/notifications' },
+  { key: 'plans', path: '/plans' },
 ]
 
 // Labels live in APP_TEXT.nav[key]

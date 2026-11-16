@@ -54,3 +54,66 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.profile-photo {
+  margin-top: 10px;
+}
+
+.profile-photo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.profile-photo-actions .btn {
+  padding: 7px 14px;
+  font-size: 13px;
+}
+
+.profile-hero p.profile-photo-hint,
+.profile-hero p.profile-photo-error {
+  margin-top: 6px;
+  font-size: 12px;
+  word-break: normal;
+}
+
+.profile-hero p.profile-photo-error {
+  color: var(--danger);
+}
+
+.profile-photo {
+  padding: 6px;
+  margin: 4px -6px 0;
+  border: 1px dashed transparent;
+  border-radius: 10px;
+}
+
+.profile-photo.is-dragging {
+  border-color: var(--primary);
+  background: #eef3ff;
+}
+
+.profile-photo-btn {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.profile-photo-btn:hover {
+  box-shadow: 0 0 0 3px #dbe4f3;
+}
+
+.profile-photo-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.profile-photo-large {
+  display: grid;
+  place-items: center;
+  padding: 24px 20px;
+}

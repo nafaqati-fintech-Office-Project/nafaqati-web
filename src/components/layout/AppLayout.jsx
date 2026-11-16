@@ -4,6 +4,7 @@ import Sidebar from './Sidebar.jsx'
 import Topbar from './Topbar.jsx'
 import ToastProvider from '../ui/ToastProvider.jsx'
 import NotificationCountProvider from '../../context/NotificationCountProvider.jsx'
+import PendingDeletionNotice from '../../features/settings/PendingDeletionNotice.jsx'
 import '../ui/ui.css'
 import './AppLayout.css'
 
@@ -14,6 +15,7 @@ export default function AppLayout() {
   return (
     <ToastProvider>
       <NotificationCountProvider>
+      <PendingDeletionNotice />
       <div className="app-shell">
         <Sidebar open={drawerOpen} onClose={closeDrawer} />
         <div className="app-main">

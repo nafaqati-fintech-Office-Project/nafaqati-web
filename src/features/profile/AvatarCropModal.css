@@ -1,0 +1,71 @@
+.crop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px 0;
+}
+
+.crop-hint {
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.crop-stage {
+  position: relative;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #0f1b3d;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.crop-stage:active {
+  cursor: grabbing;
+}
+
+.crop-stage:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.crop-stage img {
+  position: absolute;
+  max-width: none;
+  pointer-events: none;
+}
+
+/* Round window: everything outside the circle is dimmed */
+.crop-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 0 999px rgba(15, 27, 61, 0.55);
+  outline: 2px solid #fff;
+  outline-offset: -2px;
+  pointer-events: none;
+}
+
+.crop-zoom {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 280px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.crop-zoom input {
+  flex: 1;
+  accent-color: var(--primary);
+}
+
+.crop-actions {
+  align-self: stretch;
+  padding-inline: 0;
+}

@@ -1,20 +1,23 @@
-import { useState } from 'react'
-import { LoaderCircle } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { Camera, LoaderCircle, Trash2 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { useUser } from '../../hooks/useUser.js'
 import Avatar from '../../components/ui/Avatar.jsx'
+import AvatarCropModal from './AvatarCropModal.jsx'
+import Modal from '../../components/ui/Modal.jsx'
 import { Alert, Field } from '../../components/AuthShell/AuthShell.jsx'
 import { APP_TEXT } from '../../constants/appText.js'
 import { getErrorInfo } from '../../lib/errors.js'
-import { updateMe } from '../../services/userApi.js'
+import { deleteAvatar, updateMe, uploadAvatar } from '../../services/userApi.js'
 import { fullName, getProfileInitials, toDateKey } from '../../utils/format.js'
 import './Profile.css'
 
 const t = APP_TEXT.profile
 const PHONE_RE = /^\+[1-9][0-9]{6,14}$/
-const URL_RE = /^https?:\/\/\S+$/i
 // Optional fields: emptying one of these means "clear it" (sent in clearFields)
-const OPTIONAL = ['lastName', 'phone', 'avatarUrl', 'dateOfBirth']
+const OPTIONAL = ['lastName', 'phone', 'dateOfBirth']
+const AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/gif']
+const AVATAR_MAX_BYTES = 5 * 1024 * 1024
 
 // A provisional first name is only the username placeholder: show the field empty so the user enters a real one
 const toForm = (profile) => ({
@@ -22,7 +25,6 @@ const toForm = (profile) => ({
   lastName: profile.lastName ?? '',
   phone: profile.phone ?? '',
   dateOfBirth: profile.dateOfBirth ?? '',
-  avatarUrl: profile.avatarUrl ?? '',
 })
 
 // Mirrors the server rules in docs/user-service.md section 5.1
@@ -34,9 +36,6 @@ function validate(values) {
   if (values.lastName.trim().length > 100) errors.lastName = t.errors.lastNameLong
   const phone = values.phone.trim()
   if (phone && !PHONE_RE.test(phone)) errors.phone = t.errors.phoneInvalid
-  const avatar = values.avatarUrl.trim()
-  if (avatar && !URL_RE.test(avatar)) errors.avatarUrl = t.errors.avatarInvalid
-  else if (avatar.length > 2048) errors.avatarUrl = t.errors.avatarLong
   if (values.dateOfBirth && values.dateOfBirth >= toDateKey(new Date())) errors.dateOfBirth = t.errors.dobFuture
   return errors
 }
@@ -112,9 +111,6 @@ function ProfileForm({ profile, email, onSaved }) {
         <Field id="profile-phone" label={t.phone} type="tel" autoComplete="tel" placeholder="+966501234567" hint={t.phoneHint} {...bind('phone')} />
         <Field id="profile-dob" label={t.dateOfBirth} type="date" max={today} autoComplete="bday" {...bind('dateOfBirth')} />
         <div className="profile-wide">
-          <Field id="profile-avatar" label={t.avatarUrl} type="url" placeholder="https://" hint={t.avatarHint} {...bind('avatarUrl')} />
-        </div>
-        <div className="profile-wide">
           <Field id="profile-email" label={t.email} type="email" value={email ?? ''} readOnly hint={t.emailHint} />
         </div>
       </div>
@@ -126,6 +122,110 @@ function ProfileForm({ profile, email, onSaved }) {
         </button>
       </div>
     </form>
+  )
+}
+
+// The round picture; with a photo it is a button that shows the picture in a larger view
+function ProfilePicture({ profile, initials }) {
+  const [open, setOpen] = useState(false)
+  if (!profile.avatarUrl) return <Avatar src={null} initials={initials} size={72} />
+  return (
+    <>
+      <button type="button" className="profile-photo-btn" onClick={() => setOpen(true)} aria-label={t.photo.view} title={t.photo.view}>
+        <Avatar src={profile.avatarUrl} initials={initials} size={72} />
+      </button>
+      <Modal open={open} onClose={() => setOpen(false)} title={t.photo.viewTitle} size="sm">
+        <div className="profile-photo-large">
+          <Avatar src={profile.avatarUrl} initials={initials} size={280} />
+        </div>
+      </Modal>
+    </>
+  )
+}
+
+// "Change photo": Browse (or drop a file) opens the crop window; the cropped square is uploaded and the server resizes it.
+function PhotoControls({ profile, onChanged }) {
+  const input = useRef(null)
+  const [busy, setBusy] = useState(false)
+  const [message, setMessage] = useState('')
+  const [cropFile, setCropFile] = useState(null)
+  const [dragging, setDragging] = useState(false)
+  const hasPhoto = Boolean(profile.avatarUrl)
+
+  const run = async (action) => {
+    setBusy(true)
+    setMessage('')
+    try {
+      await action()
+    } catch (err) {
+      setMessage(getErrorInfo(err, 'profile').message)
+    } finally {
+      setBusy(false)
+      setCropFile(null) // on an error the crop window closes so the message below is visible
+    }
+  }
+
+  // A chosen (or dropped) file first goes to the crop window; only the cropped picture is uploaded
+  const choose = (file) => {
+    if (!file) return
+    if (!AVATAR_TYPES.includes(file.type)) return setMessage(t.photo.type)
+    if (file.size > AVATAR_MAX_BYTES) return setMessage(t.photo.size)
+    setMessage('')
+    setCropFile(file)
+  }
+
+  const onPick = (e) => {
+    const file = e.target.files?.[0]
+    e.target.value = '' // lets the same file be picked again
+    choose(file)
+  }
+
+  const onDrop = (e) => {
+    e.preventDefault()
+    setDragging(false)
+    if (!busy) choose(e.dataTransfer.files?.[0])
+  }
+
+  const onCropped = (file) =>
+    run(async () => {
+      const { avatarUrl } = await uploadAvatar(file)
+      onChanged({ ...profile, avatarUrl })
+    })
+
+  const onRemove = () =>
+    run(async () => {
+      await deleteAvatar()
+      onChanged({ ...profile, avatarUrl: null })
+    })
+
+  return (
+    <div
+      className={`profile-photo${dragging ? ' is-dragging' : ''}`}
+      onDragOver={(e) => {
+        e.preventDefault()
+        setDragging(true)
+      }}
+      onDragLeave={() => setDragging(false)}
+      onDrop={onDrop}
+    >
+      <AvatarCropModal file={cropFile} busy={busy} onCancel={() => setCropFile(null)} onConfirm={onCropped} />
+      <div className="profile-photo-actions">
+        <input ref={input} type="file" accept={AVATAR_TYPES.join(',')} onChange={onPick} hidden />
+        <button type="button" className="btn btn-outline" disabled={busy} onClick={() => input.current?.click()}>
+          {busy ? <LoaderCircle size={16} className="spin" aria-hidden="true" /> : <Camera size={16} aria-hidden="true" />}
+          {hasPhoto ? t.photo.change : t.photo.upload}
+        </button>
+        {hasPhoto && (
+          <button type="button" className="btn btn-ghost" disabled={busy} onClick={onRemove}>
+            <Trash2 size={16} aria-hidden="true" />
+            {t.photo.remove}
+          </button>
+        )}
+      </div>
+      <p className={message ? 'profile-photo-error' : 'profile-photo-hint'} role={message ? 'alert' : undefined}>
+        {message || t.photo.hint}
+      </p>
+    </div>
   )
 }
 
@@ -163,10 +263,11 @@ export default function Profile() {
         {!loading && !error && profile && (
           <>
             <div className="profile-hero">
-              <Avatar src={profile.avatarUrl} initials={getProfileInitials(profile, user)} size={72} />
+              <ProfilePicture profile={profile} initials={getProfileInitials(profile, user)} />
               <div>
                 <h2>{profile.nameProvisional ? t.noNameYet : fullName(profile)}</h2>
                 <p>{user?.email}</p>
+                <PhotoControls profile={profile} onChanged={updateProfile} />
               </div>
             </div>
             {/* key resets the form if a different profile is ever loaded */}

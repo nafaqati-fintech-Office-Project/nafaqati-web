@@ -14,7 +14,9 @@ export default function Topbar({ onMenu }) {
   const { profile, loading, nameProvisional } = useUser()
   const { pathname } = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [helpOpen, setHelpOpen] = useState(false)
   const menuRef = useRef(null)
+  const helpRef = useRef(null)
   const current = [...NAV_ITEMS, ...EXTRA_PAGES].find((item) => pathname.startsWith(item.path))
   const { topbar, nav } = APP_TEXT
 
@@ -32,6 +34,20 @@ export default function Topbar({ onMenu }) {
     }
   }, [menuOpen])
 
+  useEffect(() => {
+    if (!helpOpen) return undefined
+    const onDown = (e) => {
+      if (!helpRef.current?.contains(e.target)) setHelpOpen(false)
+    }
+    const onKey = (e) => e.key === 'Escape' && setHelpOpen(false)
+    document.addEventListener('mousedown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [helpOpen])
+
   return (
     <header className="topbar">
       <button type="button" className="topbar-menu" onClick={onMenu} aria-label={topbar.menu}>
@@ -44,9 +60,23 @@ export default function Topbar({ onMenu }) {
 
       <div className="topbar-actions">
         <NotificationBell />
-        <button type="button" className="topbar-icon" aria-label={topbar.help}>
-          <CircleHelp size={20} />
-        </button>
+        <div className="topbar-account" ref={helpRef}>
+          <button
+            type="button"
+            className="topbar-icon"
+            aria-label={topbar.help}
+            aria-expanded={helpOpen}
+            aria-controls="topbar-help-pop"
+            onClick={() => setHelpOpen((o) => !o)}
+          >
+            <CircleHelp size={20} />
+          </button>
+          {helpOpen && (
+            <div id="topbar-help-pop" className="topbar-help-pop" role="status">
+              {topbar.helpMessage}
+            </div>
+          )}
+        </div>
 
         <div className="topbar-account" ref={menuRef}>
           <button

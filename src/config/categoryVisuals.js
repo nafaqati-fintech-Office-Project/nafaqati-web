@@ -1,22 +1,28 @@
 import {
+  ArrowLeftRight,
   Banknote,
   Bus,
   CircleHelp,
   CirclePlus,
   Clapperboard,
   Fuel,
+  Gavel,
   GraduationCap,
   HandHeart,
   HeartPulse,
   House,
   Landmark,
   Plane,
+  Receipt,
   Repeat,
   ShoppingBag,
   ShoppingBasket,
+  Sparkles,
   Tag,
   TrendingUp,
+  Undo2,
   UtensilsCrossed,
+  Wallet,
   Zap,
 } from 'lucide-react'
 
@@ -41,6 +47,13 @@ export const CATEGORY_VISUALS = {
   SALARY: { color: '#16A34A', icon: Banknote },
   OTHER_INCOME: { color: '#65A30D', icon: CirclePlus },
   UNCATEGORIZED: { color: '#94A3B8', icon: CircleHelp },
+  TRANSFERS: { color: '#475569', icon: ArrowLeftRight },
+  CASH_WITHDRAWALS: { color: '#CA8A04', icon: Wallet },
+  BANK_FEES: { color: '#78716C', icon: Receipt },
+  GOVERNMENT_AND_FINES: { color: '#DC2626', icon: Gavel },
+  PERSONAL_CARE: { color: '#A855F7', icon: Sparkles },
+  INTERNAL_TRANSFERS: { color: '#64748B', icon: ArrowLeftRight },
+  REFUNDS: { color: '#16A34A', icon: Undo2 },
 }
 
 const FALLBACK = { color: '#94A3B8', icon: Tag }
