@@ -1,3 +1,8 @@
 .fam-form { display: flex; flex-direction: column; gap: 14px; }
 .fam-form-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 @media (max-width: 480px) { .fam-form-pair { grid-template-columns: 1fr; } }
+
+/* Shared by every family modal form: padding inside the modal, like the budget and goal forms */
+.fam-form, .fam-invite-form, .fam-budget-form, .fam-share-form { padding: 18px 20px 0; }
+.fam-form .modal-actions, .fam-invite-form .modal-actions, .fam-budget-form .modal-actions, .fam-share-form .modal-actions { padding: 6px 0 20px; }
+.fam-form .auth-error, .fam-invite-form .auth-error, .fam-budget-form .auth-error { font-size: 12px; color: var(--danger); }

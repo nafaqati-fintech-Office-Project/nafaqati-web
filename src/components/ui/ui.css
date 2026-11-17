@@ -371,6 +371,19 @@
 .panel-title { margin-bottom: 16px; font-size: 16px; font-weight: 700; color: var(--navy); }
 .form-field { display: flex; flex-direction: column; gap: 6px; }
 .form-field label { font-size: 13px; font-weight: 600; color: var(--navy); }
+.form-field input,
+.form-field textarea,
+.form-field select {
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 14px;
+  color: var(--text);
+}
+.form-field input:focus, .form-field textarea:focus { outline: 2px solid var(--primary); border-color: var(--primary); }
+.form-field input[aria-invalid='true'], .form-field textarea[aria-invalid='true'] { border-color: var(--danger); }
 .form-field select {
   padding: 11px 12px;
   border: 1px solid var(--border);

@@ -1,7 +1,7 @@
 import { Cell, Pie, PieChart } from 'recharts'
 import DashCard, { Sk } from './DashCard.jsx'
 import { useFormat } from '../../../hooks/useFormat.js'
-import { APP_TEXT } from '../../../constants/appText.js'
+import { useDashboardText } from '../../../hooks/useDashboardText.js'
 import { categoryColor } from '../../../config/categoryVisuals.js'
 import { useCategories } from '../../../hooks/useCategories.js'
 
@@ -11,7 +11,8 @@ const pct = (value) => Number(value.toFixed(1))
 export default function TopCategoriesCard({ data, state, onViewAll, onViewDetails, onAdd, onSelectCategory }) {
   const { money } = useFormat()
   const { nameOf } = useCategories()
-  const t = APP_TEXT.dashboard.categories
+  const { t: dash } = useDashboardText()
+  const t = dash.categories
   const items = data?.items ?? []
   const summary = t.summary(items.map((i) => `${nameOf(i.key)} ${pct(i.percent)}% ${money(i.amount)}`).join(', '))
 
@@ -22,7 +23,7 @@ export default function TopCategoriesCard({ data, state, onViewAll, onViewDetail
       state={state}
       action={
         <button type="button" className="link-btn" onClick={onViewAll}>
-          {APP_TEXT.common.viewAll}
+          {dash.payments.viewAll}
         </button>
       }
       empty={data && items.length === 0 ? { title: t.emptyTitle, body: t.emptyBody, cta: { label: t.emptyCta, onClick: onAdd } } : null}

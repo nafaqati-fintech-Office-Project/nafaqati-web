@@ -999,3 +999,27 @@ button.stat-body:focus-visible,
   }
 }
 
+
+.insight-link {
+  text-decoration: none;
+  padding: 6px;
+  margin: -6px;
+  border-radius: 12px;
+}
+.insight-link:hover {
+  background: rgba(123, 63, 242, 0.08);
+}
+.insight-ask {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #7b3ff2;
+  color: #fff !important;
+  font-weight: 600;
+  text-decoration: none;
+}
+.insight-ask:hover {
+  background: #6a2fe0;
+}

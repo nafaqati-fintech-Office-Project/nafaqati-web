@@ -1,14 +1,14 @@
 import { Link } from 'react-router-dom'
 import { CalendarDays, PieChart, Sparkles, TrendingDown, TrendingUp } from 'lucide-react'
-import { APP_TEXT } from '../../../constants/appText.js'
+import { useDashboardText } from '../../../hooks/useDashboardText.js'
 import { useFormat } from '../../../hooks/useFormat.js'
 import { useCategories } from '../../../hooks/useCategories.js'
-
-const t = APP_TEXT.dashboard.insights
 
 // Insights worked out from the report data the dashboard already loaded from the backend (income vs expenses,
 // spending by category, daily spending), in the user's currency. Nothing is invented: a rule that lacks data is skipped.
 export default function InsightsCard({ spending, prevSpending, comparable, categories, daily, states }) {
+  const { t: dash } = useDashboardText()
+  const t = dash.insights
   const { money } = useFormat()
   const { nameOf } = useCategories()
 
@@ -30,7 +30,7 @@ export default function InsightsCard({ spending, prevSpending, comparable, categ
         <Sparkles size={26} aria-hidden="true" />
         <strong>{t.error}</strong>
         <button type="button" className="dc-retry" onClick={() => states.forEach((s) => s.error && s.retry())}>
-          {APP_TEXT.common.retry}
+          {dash.retry}
         </button>
       </div>
     )
@@ -62,11 +62,13 @@ export default function InsightsCard({ spending, prevSpending, comparable, categ
     body = list.length ? (
       <ul className="insight-list">
         {list.map(({ key, icon: Icon, tone, text }) => (
-          <li key={key} className="insight-row">
-            <span className={`pay-icon tone-${tone}`}>
-              <Icon size={18} aria-hidden="true" />
-            </span>
-            <span>{text}</span>
+          <li key={key}>
+            <Link to={`/ai-assistant?ask=${encodeURIComponent(`${text} ${t.explain}`)}`} className="insight-row insight-link" title={t.ask}>
+              <span className={`pay-icon tone-${tone}`}>
+                <Icon size={18} aria-hidden="true" />
+              </span>
+              <span>{text}</span>
+            </Link>
           </li>
         ))}
       </ul>
@@ -83,7 +85,9 @@ export default function InsightsCard({ spending, prevSpending, comparable, categ
     <section className="dc" aria-label={t.title}>
       <header className="dc-head">
         <h2>{t.title}</h2>
-        <Link to="/ai-assistant">{t.ask}</Link>
+        <Link to="/ai-assistant" className="insight-ask">
+          <Sparkles size={14} aria-hidden="true" /> {t.ask}
+        </Link>
       </header>
       {body}
     </section>

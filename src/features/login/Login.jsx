@@ -4,7 +4,6 @@ import { useAuth } from '../../context/AuthContext.jsx'
 import { getErrorInfo } from '../../lib/errors.js'
 import AuthShell, { Alert, Field } from '../../components/AuthShell/AuthShell.jsx'
 import PasswordInput from '../../components/PasswordInput/PasswordInput.jsx'
-import TabSwitch from '../../components/ui/TabSwitch.jsx'
 import { AUTH_TEXT } from '../../constants/authText.js'
 import AuthLoader from '../../components/AuthLoader.jsx'
 import { isEmail, isValidUsername } from '../../lib/validators.js'
@@ -23,19 +22,13 @@ function AppleLogo() {
 }
 
 const T = AUTH_TEXT.login
-const TABS = [
-  { value: 'email', label: T.tabs.email },
-  { value: 'mobile', label: T.tabs.mobile },
-]
 const MAX_PASSWORD_CHARS = 72
 
 export default function Login() {
   const { isAuthenticated, isInitializing, login, loginWithGoogle } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const [method, setMethod] = useState('email')
   const [email, setEmail] = useState('')
-  const [mobile, setMobile] = useState('')
   const [password, setPassword] = useState('')
   const [remember, setRemember] = useState(false)
   const [errors, setErrors] = useState({})
@@ -52,8 +45,6 @@ export default function Login() {
   if (isInitializing) return <AuthLoader />
   if (isAuthenticated) return <Navigate to="/dashboard" replace />
 
-  const mobileTab = method === 'mobile'
-
   const validate = () => {
     const next = {}
     const id = email.trim()
@@ -64,14 +55,9 @@ export default function Login() {
     return next
   }
 
-  const changeMethod = (value) => {
-    setMethod(value)
-    setErrors({})
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (submitting || mobileTab) return
+    if (submitting) return
     const next = validate()
     setErrors(next)
     if (Object.keys(next).length) return
@@ -111,37 +97,18 @@ export default function Login() {
       <Alert kind="success">{location.state?.message}</Alert>
       <Alert kind="error">{location.state?.expired && T.sessionExpired}</Alert>
 
-      <TabSwitch tabs={TABS} value={method} onChange={changeMethod} label={T.tabsLabel} />
-
       <form className="auth-form" onSubmit={handleSubmit} noValidate>
-        {method === 'email' ? (
-          <Field
-            key="email"
-            id="login-identifier"
-            label={T.emailLabel}
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder={T.emailPlaceholder}
-            autoComplete="username"
-            error={errors.identifier}
-          />
-        ) : (
-          <Field
-            key="mobile"
-            id="login-identifier"
-            label={T.mobileLabel}
-            prefix={T.mobilePrefix}
-            type="tel"
-            inputMode="numeric"
-            maxLength={9}
-            value={mobile}
-            onChange={(e) => setMobile(e.target.value.replace(/\D/g, ''))}
-            placeholder={T.mobilePlaceholder}
-            autoComplete="tel-national"
-            error={errors.identifier}
-          />
-        )}
+        <Field
+          key="email"
+          id="login-identifier"
+          label={T.emailLabel}
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder={T.emailPlaceholder}
+          autoComplete="username"
+          error={errors.identifier}
+        />
 
         <PasswordInput
           id="login-password"
@@ -164,10 +131,9 @@ export default function Login() {
           </Link>
         </div>
 
-        {mobileTab && <p className="login-note">{T.mobileSoon}</p>}
         <Alert kind="error">{errors.form}</Alert>
 
-        <button type="submit" className="auth-submit" disabled={submitting || mobileTab}>
+        <button type="submit" className="auth-submit" disabled={submitting}>
           {submitting && <span className="auth-spinner" aria-hidden="true" />}
           {submitting ? T.submitting : T.submit}
         </button>

@@ -55,7 +55,7 @@ function buildChanges(profile, values) {
   return changes
 }
 
-function ProfileForm({ profile, email, onSaved }) {
+function ProfileForm({ profile, username, onSaved }) {
   const [values, setValues] = useState(() => toForm(profile))
   const [errors, setErrors] = useState({})
   const [saving, setSaving] = useState(false)
@@ -110,9 +110,11 @@ function ProfileForm({ profile, email, onSaved }) {
         <Field id="profile-last-name" label={t.lastName} autoComplete="family-name" {...bind('lastName')} />
         <Field id="profile-phone" label={t.phone} type="tel" autoComplete="tel" placeholder="+966501234567" hint={t.phoneHint} {...bind('phone')} />
         <Field id="profile-dob" label={t.dateOfBirth} type="date" max={today} autoComplete="bday" {...bind('dateOfBirth')} />
-        <div className="profile-wide">
-          <Field id="profile-email" label={t.email} type="email" value={email ?? ''} readOnly hint={t.emailHint} />
-        </div>
+        {username && (
+          <div className="profile-wide">
+            <Field id="profile-username" label="Username" value={username} readOnly hint="Your username can't be changed." />
+          </div>
+        )}
       </div>
 
       <div className="profile-actions">
@@ -271,7 +273,7 @@ export default function Profile() {
               </div>
             </div>
             {/* key resets the form if a different profile is ever loaded */}
-            <ProfileForm key={profile.userId} profile={profile} email={user?.email} onSaved={updateProfile} />
+            <ProfileForm key={profile.userId} profile={profile} username={user?.username} onSaved={updateProfile} />
           </>
         )}
       </section>

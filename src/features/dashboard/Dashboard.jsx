@@ -4,7 +4,8 @@ import { Cloud, FileText, Flag, HeartPulse, Moon, PiggyBank, Plus, Search, Shopp
 import { useUser } from '../../hooks/useUser.js'
 import { useFormat } from '../../hooks/useFormat.js'
 import { useDashboardData } from '../../hooks/useDashboardData.js'
-import { APP_TEXT, PERIOD_TEXT } from '../../constants/appText.js'
+import { PERIOD_TEXT } from '../../constants/appText.js'
+import { useDashboardText } from '../../hooks/useDashboardText.js'
 import { getDayPeriod } from '../../utils/format.js'
 import { currentMonth, todayKey } from '../../utils/dateRange.js'
 import { addDays, currentMonthPeriod, periodDays, periodFromParams, periodLabel, wholeMonth } from '../../utils/period.js'
@@ -32,8 +33,7 @@ const GREETING_ICONS = {
   night: { icon: Moon, color: '#7B3FF2' },
 }
 
-const t = APP_TEXT.dashboard
-const QUICK_ACTIONS = [
+const QUICK_ACTIONS = (t) => [
   { id: 'add-expense', label: t.quickActions.addExpense, icon: Plus, tone: 'green' },
   { id: 'ask', label: t.quickActions.askNafaqati, icon: Sparkles, tone: 'purple' },
   { id: 'set-budget', label: t.quickActions.setBudget, icon: Wallet, tone: 'orange' },
@@ -53,7 +53,7 @@ const daysLeft = (periodEnd, timeZone) => {
 }
 
 // remaining / days left, both in the budget's own currency and time zone; nothing is invented when over budget
-function SafeValue({ budget }) {
+function SafeValue({ budget, t }) {
   const remaining = Number(budget.remainingAmount)
   const days = daysLeft(budget.periodEnd, budget.timeZone)
   const decimals = decimalsFor(budget.currency)
@@ -63,14 +63,14 @@ function SafeValue({ budget }) {
       <div className="safe-value">{remaining > 0 ? fmt(remaining / days) : fmt(0)}</div>
       <p className="safe-desc">
         {remaining > 0
-          ? `per day for the next ${days} ${days === 1 ? 'day' : 'days'} (${fmt(remaining)} left this month).`
-          : 'You have reached this month’s budget.'}
+          ? t.safeToSpend.perDay(days, fmt(remaining))
+          : t.safeToSpend.reached}
       </p>
     </>
   )
 }
 
-function SafeToSpendCard({ state, onSetBudget, onOpen }) {
+function SafeToSpendCard({ state, onSetBudget, onOpen, t, retryLabel }) {
   if (state.loading) {
     return (
       <section className="dc safe-card" aria-label={t.safeToSpend.title}>
@@ -92,7 +92,7 @@ function SafeToSpendCard({ state, onSetBudget, onOpen }) {
           <Wallet size={28} aria-hidden="true" />
           <strong>{getErrorInfo(state.error, 'budgets').message}</strong>
           <button type="button" className="dc-retry" onClick={state.retry}>
-            {APP_TEXT.common.retry}
+            {retryLabel}
           </button>
         </div>
       </section>
@@ -106,10 +106,10 @@ function SafeToSpendCard({ state, onSetBudget, onOpen }) {
         </div>
         <div className="dc-state">
           <Wallet size={28} aria-hidden="true" />
-          <strong>Set a budget</strong>
-          <p>Create this month’s budget to see how much you can safely spend.</p>
+          <strong>{t.safeToSpend.setTitle}</strong>
+          <p>{t.safeToSpend.setBody}</p>
           <button type="button" className="dc-retry" onClick={onSetBudget}>
-            Set a budget
+            {t.safeToSpend.setTitle}
           </button>
         </div>
       </section>
@@ -124,9 +124,9 @@ function SafeToSpendCard({ state, onSetBudget, onOpen }) {
         <div className="safe-text">
           <div className="safe-title-row">
             <h2>{t.safeToSpend.title}</h2>
-            <span className={`badge-${state.data.usageStatus === "EXCEEDED" ? "red" : state.data.usageStatus === "WARNING" ? "amber" : "green"}`}>{{ ON_TRACK: "On track", WARNING: "Warning", EXCEEDED: "Exceeded" }[state.data.usageStatus] ?? state.data.usageStatus}</span>
+            <span className={`badge-${state.data.usageStatus === "EXCEEDED" ? "red" : state.data.usageStatus === "WARNING" ? "amber" : "green"}`}>{t.safeToSpend.status[state.data.usageStatus] ?? state.data.usageStatus}</span>
           </div>
-          <SafeValue budget={state.data} />
+          <SafeValue budget={state.data} t={t} />
         </div>
       </div>
     </section>
@@ -134,6 +134,7 @@ function SafeToSpendCard({ state, onSetBudget, onOpen }) {
 }
 
 export default function Dashboard() {
+  const { t, dir } = useDashboardText()
   const { profile, loading: profileLoading, nameProvisional, nameResolving } = useUser()
   const { currency, timeZone, money } = useFormat()
   const [nudgeDismissed, setNudgeDismissed] = useState(false)
@@ -246,7 +247,7 @@ export default function Dashboard() {
   }, [categories.data, categoryEntry])
 
   return (
-    <div className="dash">
+    <div className="dash" dir={dir}>
       <div className="dash-main">
         <div className="dash-header">
           <div>
@@ -347,6 +348,8 @@ export default function Dashboard() {
           <div className="area-safe">
             {BUDGET_TRACKING ? (
               <SafeToSpendCard
+                t={t}
+                retryLabel={t.retry}
                 state={currentBudget}
                 onSetBudget={() => navigate('/budgets?create=1')}
                 onOpen={(budget) =>
@@ -381,7 +384,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <QuickActions title={t.quickActions.title} actions={QUICK_ACTIONS} onAction={onQuickAction} />
+        <QuickActions title={t.quickActions.title} actions={QUICK_ACTIONS(t)} onAction={onQuickAction} />
       </div>
 
       <div className="dash-side">

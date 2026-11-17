@@ -1,16 +1,17 @@
 import { Link } from 'react-router-dom'
 import { CalendarClock } from 'lucide-react'
-import { APP_TEXT } from '../../../constants/appText.js'
+import { useDashboardText } from '../../../hooks/useDashboardText.js'
 import { useAsync } from '../../../hooks/useAsync.js'
 import { getSummary } from '../../../services/subscriptionApi.js'
 import { formatCalendarDate, formatMoney } from '../../subscriptions/subscriptionUtils.js'
 
 const MAX_ROWS = 4
-const t = APP_TEXT.dashboard.payments
 
 // Upcoming payments from subscription-service (GET /api/subscriptions/summary -> `upcoming`, next 30 days).
 // Amounts keep their own currency; nothing is converted or added together.
 export default function UpcomingPaymentsCard() {
+  const { t: dash } = useDashboardText()
+  const t = dash.payments
   const state = useAsync(getSummary, 'dashboard-upcoming-payments')
 
   let body
@@ -28,7 +29,7 @@ export default function UpcomingPaymentsCard() {
         <CalendarClock size={26} aria-hidden="true" />
         <strong>{t.error}</strong>
         <button type="button" className="dc-retry" onClick={state.retry}>
-          {APP_TEXT.common.retry}
+          {dash.retry}
         </button>
       </div>
     )

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Bot, Info, Mic, SendHorizontal, Square, Trash2 } from 'lucide-react'
 import ConfirmDialog from '../../components/ui/ConfirmDialog.jsx'
 import { useToast } from '../../hooks/useToast.js'
@@ -37,6 +37,13 @@ export default function AiAssistant() {
   const voice = useSpeechInput(lang, setDraft, (problem) =>
     toast.error(problem === 'denied' ? text.micDenied : problem === 'unavailable' ? text.micUnavailable : text.micError),
   )
+
+  // Coming from a dashboard insight (?ask=...): put the question in the box; the user presses Send
+  const [searchParams] = useSearchParams()
+  const ask = searchParams.get('ask')
+  useEffect(() => {
+    if (ask) setDraft(ask)
+  }, [ask])
 
   useEffect(() => {
     endRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'end' })

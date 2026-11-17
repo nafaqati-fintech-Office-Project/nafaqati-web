@@ -1,8 +1,6 @@
-import { useState } from 'react'
 import { MessageSquare, ShieldCheck, Sparkles, TrendingUp } from 'lucide-react'
 import { AUTH_TEXT } from '../../constants/authText.js'
 import { IntellivexMark, Logo } from '../ui/Logo.jsx'
-import LanguageSelector from '../ui/LanguageSelector.jsx'
 import loginBg from '../../../assets/loginbg.jpg'
 import './AuthShell.css'
 
@@ -44,7 +42,6 @@ export function Field({ id, label, icon: Icon, prefix, error, hint, trailing, ..
 }
 
 export default function AuthShell({ title, subtitle, children }) {
-  const [lang, setLang] = useState('en')
   const { brand, features } = AUTH_TEXT
 
   return (
@@ -87,15 +84,6 @@ export default function AuthShell({ title, subtitle, children }) {
 
       <main className="auth-main">
         <div className="auth-main-inner">
-          <div className="auth-lang">
-            <LanguageSelector
-              languages={AUTH_TEXT.languages}
-              value={lang}
-              onChange={setLang}
-              label={AUTH_TEXT.languageLabel}
-            />
-          </div>
-
           <div className="auth-card">
             <h2 className="auth-title">{title}</h2>
             {subtitle && <p className="auth-subtitle">{subtitle}</p>}

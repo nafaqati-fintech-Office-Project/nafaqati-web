@@ -1,20 +1,21 @@
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import DashCard, { Sk } from './DashCard.jsx'
 import { useFormat } from '../../../hooks/useFormat.js'
-import { APP_TEXT } from '../../../constants/appText.js'
+import { useDashboardText } from '../../../hooks/useDashboardText.js'
 import { formatShortK } from '../../../utils/format.js'
 
 const COLORS = { expenses: '#7B3FF2', stroke: '#1E6BFF' }
 
 function ChartTooltip({ active, payload, label }) {
   const { money } = useFormat()
+  const expensesLabel = useDashboardText().t.spending.expenses
   if (!active || !payload?.length) return null
   return (
     <div className="chart-tip">
       <strong>{label}</strong>
       <div className="chart-tip-row">
         <span className="legend-dot" style={{ background: COLORS.stroke }} />
-        {APP_TEXT.dashboard.spending.expenses}
+        {expensesLabel}
         <span className="num">{money(payload[0].value)}</span>
       </div>
     </div>
@@ -33,7 +34,7 @@ function niceAxis(max) {
 // data: { points: [{ label, day ('YYYY-MM-DD'), expenses }], ticks: [label], total } built from GET /api/reports/daily-spending
 export default function SpendingOverviewCard({ data, state, onAdd, onSelectDay }) {
   const { money } = useFormat()
-  const t = APP_TEXT.dashboard.spending
+  const t = useDashboardText().t.spending
   const axis = niceAxis(Math.max(0, ...(data?.points ?? []).map((p) => p.expenses)))
   const empty = data && data.total === 0
 
