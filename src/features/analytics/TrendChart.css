@@ -53,3 +53,9 @@
   margin-inline-start: 12px;
   color: var(--navy);
 }
+
+.an-ranges { display: flex; justify-content: flex-end; gap: 6px; margin-block-end: 6px; }
+.an-range { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border: 1px solid var(--border); border-radius: 999px; background: #fff; font-size: 12px; font-weight: 600; color: var(--muted); text-decoration: none; cursor: pointer; }
+.an-range.is-active { border-color: var(--primary); background: #eef3ff; color: var(--primary); }
+.an-range.is-locked { opacity: 0.75; }
+.an-range:disabled { cursor: default; }

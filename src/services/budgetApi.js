@@ -20,5 +20,6 @@ export const createBudget = (data) => api.post(BASE, data).then((res) => res.dat
 export const updateBudget = (id, data) => api.put(`${BASE}/${id}`, data).then((res) => res.data)
 
 export const archiveBudget = (id) => api.patch(`${BASE}/${id}/archive`).then(() => ({ id }))
+export const restoreBudget = (id) => api.patch(`${BASE}/${id}/restore`).then((res) => res.data)
 
 export const getBudgetAlerts = (id) => api.get(`${BASE}/${id}/alerts`).then((res) => res.data)

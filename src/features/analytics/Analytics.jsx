@@ -1,3 +1,4 @@
+﻿import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useAnalytics } from '../../hooks/useAnalytics.js'
 import { useFormat } from '../../hooks/useFormat.js'
@@ -17,18 +18,11 @@ import './Analytics.css'
 // The period lives in the URL (?from=&to=), so Back from a drill-down keeps it; default: this month
 export default function Analytics() {
   const { can, loading } = usePlan()
-  // Analytics (trends, categories, patterns, comparisons) is Premium; the server refuses its data to a Free user.
-  if (!loading && !can('reports.advanced')) {
-    return (
-      <div className="analytics">
-        <UpgradePrompt title={APP_TEXT.plans.analyticsUpgradeTitle} body={APP_TEXT.plans.analyticsUpgradeBody} />
-      </div>
-    )
-  }
-  return <AnalyticsRoute />
+  // Free: month comparison and a 3-month trend. Premium: longer trends, categories and spending patterns.
+  return <AnalyticsRoute premium={!loading && can('reports.advanced')} />
 }
 
-function AnalyticsRoute() {
+function AnalyticsRoute({ premium }) {
   const { timeZone } = useFormat()
   const [params, setParams] = useSearchParams()
   const period = periodFromParams(params, currentMonthPeriod(timeZone))
@@ -44,14 +38,15 @@ function AnalyticsRoute() {
     )
   return (
     <AnalyticsRangeContext.Provider value={!wholeMonth(period)}>
-      <AnalyticsPage period={period} onPeriod={onPeriod} timeZone={timeZone} />
+      <AnalyticsPage period={period} onPeriod={onPeriod} timeZone={timeZone} premium={premium} />
     </AnalyticsRangeContext.Provider>
   )
 }
 
-function AnalyticsPage({ period, onPeriod, timeZone }) {
+function AnalyticsPage({ period, onPeriod, timeZone, premium }) {
+  const [trendMonths, setTrendMonths] = useState(12)
   const { t, dir } = useAnalyticsText()
-  const { comparison, trend, categories, daily, currencies, currency, setCurrency, range, month } = useAnalytics(period)
+  const { comparison, trend, categories, daily, currencies, currency, setCurrency, range, month } = useAnalytics(period, { premium, trendMonths })
 
   // Currencies of this period that are not the selected one; their amounts are never mixed into the figures
   const others = currencies.filter((c) => c !== currency)
@@ -72,14 +67,15 @@ function AnalyticsPage({ period, onPeriod, timeZone }) {
         </p>
       )}
       <KpiCards comparison={comparison} trend={trend} currency={currency} month={month} />
-      <TrendChart state={trend} currency={currency} />
-      <div className="analytics-grid">
+      <TrendChart state={trend} currency={currency} premium={premium} months={premium ? trendMonths : 3} onMonths={setTrendMonths} />
+      {!premium && <UpgradePrompt title={APP_TEXT.plans.analyticsUpgradeTitle} body={APP_TEXT.plans.analyticsUpgradeBody} />}
+      {premium && <div className="analytics-grid">
         <CategoryBreakdown state={categories} comparison={comparison} currency={currency} range={range} />
         <div className="analytics-col">
           <SpendingHeatmap state={daily} currency={currency} timeZone={timeZone} />
           <WeekdayPattern state={daily} currency={currency} timeZone={timeZone} />
         </div>
-      </div>
+      </div>}
     </div>
   )
 }

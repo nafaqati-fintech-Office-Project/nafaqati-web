@@ -8,7 +8,7 @@ import { useCategories } from '../../hooks/useCategories.js'
 import { useFormat } from '../../hooks/useFormat.js'
 import { useToast } from '../../hooks/useToast.js'
 import { getErrorInfo } from '../../lib/errors.js'
-import { BUDGET_TRACKING, archiveBudget, createBudget, updateBudget } from '../../services/budgetApi.js'
+import { BUDGET_TRACKING, archiveBudget, restoreBudget, createBudget, updateBudget } from '../../services/budgetApi.js'
 import AlertsPanel from './AlertsPanel.jsx'
 import BudgetFormModal from './BudgetFormModal.jsx'
 import BudgetOverview from './BudgetOverview.jsx'
@@ -112,6 +112,19 @@ export default function Budgets() {
     }
   }
 
+  const confirmRestore = async () => {
+    setArchiving(true)
+    try {
+      await restoreBudget(displayBudget.id)
+      toast.success('Budget restored')
+      budgetsState.refetch()
+    } catch (err) {
+      toast.error(getErrorInfo(err, 'budgets').message)
+    } finally {
+      setArchiving(false)
+    }
+  }
+
   const retryAll = () => {
     budgetsState.retry()
     retryCategories()
@@ -142,20 +155,22 @@ export default function Budgets() {
       ) : displayBudget ? (
         <>
           {displayBudget.status === 'ARCHIVED' && (
-            <p className="budget-archive-note">This budget is archived. It can no longer be edited and no longer counts spending. You can create a new budget for this month.</p>
+            <p className="budget-archive-note">This budget is archived. It can't be edited and doesn't count spending until you restore it. You can also create a new budget for this month.</p>
           )}
           <BudgetOverview budget={displayBudget} currency={displayBudget.currency || currency} catchUp={budgetsState} />
           <CategoryLimitList budget={displayBudget} byCode={byCode} currency={displayBudget.currency || currency} />
           <div className="budget-actions-row">
-            <button
-              type="button"
-              className="btn btn-danger-outline"
-              onClick={() => setArchiveOpen(true)}
-              disabled={displayBudget.status === 'ARCHIVED'}
-            >
-              <Archive size={17} aria-hidden="true" />
-              Archive budget
-            </button>
+            {displayBudget.status === 'ARCHIVED' ? (
+              <button type="button" className="btn btn-outline" onClick={confirmRestore} disabled={archiving}>
+                <Archive size={17} aria-hidden="true" />
+                {archiving ? 'Restoring...' : 'Restore budget'}
+              </button>
+            ) : (
+              <button type="button" className="btn btn-danger-outline" onClick={() => setArchiveOpen(true)}>
+                <Archive size={17} aria-hidden="true" />
+                Archive budget
+              </button>
+            )}
           </div>
           {BUDGET_TRACKING && <AlertsPanel budget={displayBudget} byCode={byCode} onRetryKey={alertsRetryKey} />}
         </>
@@ -184,7 +199,7 @@ export default function Budgets() {
       <ConfirmDialog
         open={archiveOpen}
         title="Archive this budget?"
-        body="This cannot be undone. An archived budget stops counting spending; you can create a new budget for this month afterwards."
+        body="An archived budget stops counting spending. You can restore it later, or create a new budget for this month."
         confirmLabel="Archive"
         busyLabel="Archiving..."
         cancelLabel="Cancel"

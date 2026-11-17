@@ -1,4 +1,4 @@
-// All app-shell and dashboard copy lives here so Arabic/RTL can be added later.
+﻿// All app-shell and dashboard copy lives here so Arabic/RTL can be added later.
 export const APP_TEXT = {
   nav: {
     dashboard: 'Dashboard',
@@ -68,7 +68,7 @@ export const APP_TEXT = {
     reportsUpgradeTitle: 'More detail with Premium',
     reportsUpgradeBody: 'Category analytics, trends, comparisons and insights are part of Premium.',
     analyticsUpgradeTitle: 'Analytics is part of Premium',
-    analyticsUpgradeBody: 'Trends, category analytics, spending patterns and comparisons are part of Premium.',
+    analyticsUpgradeBody: 'Your 3-month trend is free. Longer trends (6 and 12 months), category analytics and spending patterns are part of Premium.',
     exportUpgradeBody: 'PDF and Excel export is part of Premium.',
     cardsUpgradeBody: 'Filtering by card is part of Premium.',
     historyLimited: (days) => `Free plans show the last ${days} days. Upgrade to see your full history.`,

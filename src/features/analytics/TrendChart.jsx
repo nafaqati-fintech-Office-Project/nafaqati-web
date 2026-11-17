@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+import { Lock } from 'lucide-react'
 import { Bar, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import SectionCard, { Sk } from './SectionCard.jsx'
 import { useAnalyticsText } from './useAnalyticsText.js'
@@ -21,7 +23,9 @@ function TrendTooltip({ active, payload, currency, t }) {
 }
 
 // Income vs expenses per month (bars) and the savings rate (line, right axis) from GET /api/reports/monthly-trend
-export default function TrendChart({ state, currency }) {
+const RANGES = [3, 6, 12]
+
+export default function TrendChart({ state, currency, premium = true, months: selected = 12, onMonths }) {
   const { t, locale, dir } = useAnalyticsText()
   const months = forCurrency(state.data, currency)?.months ?? []
   const points = months.map((m) => ({
@@ -42,6 +46,19 @@ export default function TrendChart({ state, currency }) {
       skeleton={<Sk h={280} r={12} />}
       empty={empty ? { title: t.trend.emptyTitle, body: t.trend.emptyBody } : null}
     >
+      <div className="an-ranges" role="group" aria-label="Trend length">
+        {RANGES.map((n) =>
+          n > 3 && !premium ? (
+            <Link key={n} to="/plans" className="an-range is-locked" title="Premium">
+              <Lock size={12} aria-hidden="true" /> {n}M
+            </Link>
+          ) : (
+            <button key={n} type="button" className={`an-range ${n === selected ? 'is-active' : ''}`} onClick={() => onMonths?.(n)} disabled={!premium}>
+              {n}M
+            </button>
+          ),
+        )}
+      </div>
       <ul className="an-legend">
         <li><span className="an-dot" style={{ background: COLORS.income }} />{t.trend.income}</li>
         <li><span className="an-dot" style={{ background: COLORS.expenses }} />{t.trend.expenses}</li>

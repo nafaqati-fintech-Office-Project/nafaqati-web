@@ -13,7 +13,7 @@ import * as reportsApi from '../services/reportsApi.js'
 //   categories: spending by category of the period
 //   daily:      spending per day of the period
 // Every response lists all currencies, so switching currency is a client-side selection (no refetch).
-export function useAnalytics(period) {
+export function useAnalytics(period, { premium = true, trendMonths = 12 } = {}) {
   const { timeZone, currency: preferred } = useFormat()
   const key = `${period.from}:${period.to}:${timeZone}`
   const month = wholeMonth(period)
@@ -24,12 +24,14 @@ export function useAnalytics(period) {
     () => reportsApi.getPeriodComparison({ period, previous, month, timeZone }),
     `comparison:${key}`,
   )
+  // Free plan: a trend of at most 3 months; categories and daily spending are Premium (never requested for Free)
+  const months3 = premium ? trendMonths : 3
   const trend = useAsync(
-    () => reportsApi.getMonthlyTrend({ endMonth: period.to.slice(0, 7), months: 12, timeZone }),
-    `trend:${period.to.slice(0, 7)}:${timeZone}`,
+    () => reportsApi.getMonthlyTrend({ endMonth: period.to.slice(0, 7), months: months3, timeZone }),
+    `trend:${period.to.slice(0, 7)}:${months3}:${timeZone}`,
   )
-  const categories = useAsync(() => reportsApi.getSpendingSummary(range), `categories:${key}`)
-  const daily = useAsync(() => reportsApi.getDailySpending(range), `daily:${key}`)
+  const categories = useAsync(() => (premium ? reportsApi.getSpendingSummary(range) : Promise.resolve(null)), `categories:${key}:${premium}`)
+  const daily = useAsync(() => (premium ? reportsApi.getDailySpending(range) : Promise.resolve(null)), `daily:${key}:${premium}`)
 
   // Currencies present in whatever has loaded so far (sorted); the preferred one is offered even before data arrives
   const found = [comparison, trend, categories, daily].flatMap((s) => s.data?.currencies?.map((c) => c.currency) ?? [])
