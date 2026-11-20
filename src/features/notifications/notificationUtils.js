@@ -9,11 +9,19 @@ export const SEVERITY_VISUAL = {
   CRITICAL: { icon: CircleAlert, tone: 'critical' },
 }
 
-// Where a click on a notification goes; null = just mark it read. Only BUDGET is known today:
-// /budgets, on the month of the budget when the alert says which month it was (params.periodEnd, yyyy-MM-dd).
+// Where a click on a notification goes; null = just mark it read.
+// - TRANSACTION (large-transaction and transaction alerts): /transactions?txn=<id>, which opens that transaction's details.
+// - BUDGET: /budgets, on the month of the budget when the alert says which month it was (params.periodEnd, yyyy-MM-dd).
+// - SUBSCRIPTION and GOAL: their pages. FAMILY: the Family page.
 export function deepLinkFor(notification) {
   // family-service notifications (invitations, role changes) and family budget alerts: the Family page
   if (notification.type === 'FAMILY' || String(notification.templateKey ?? '').startsWith('FAMILY_')) return '/family'
+  const id = notification.referenceId
+  if (notification.referenceType === 'TRANSACTION') {
+    return id ? `/transactions?txn=${encodeURIComponent(id)}` : '/transactions'
+  }
+  if (notification.referenceType === 'SUBSCRIPTION') return '/subscriptions'
+  if (notification.referenceType === 'GOAL') return '/goals'
   if (notification.referenceType !== 'BUDGET') return null
   const periodEnd = notification.params?.periodEnd
   const month = typeof periodEnd === 'string' && /^\d{4}-\d{2}/.test(periodEnd) ? periodEnd.slice(0, 7) : ''

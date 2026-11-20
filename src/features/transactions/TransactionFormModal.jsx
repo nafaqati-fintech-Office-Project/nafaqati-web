@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { LoaderCircle } from 'lucide-react'
+import { suggestCategoryCode } from '../../lib/merchantModel.js'
 import Modal from '../../components/ui/Modal.jsx'
 import { APP_TEXT } from '../../constants/appText.js'
 import { useFormat } from '../../hooks/useFormat.js'
@@ -61,6 +62,33 @@ function TransactionForm({ txn, type, categories, onSubmit, onClose }) {
 
   const options = categoriesFor(values.type, categories)
   const set = (patch) => setValues((v) => ({ ...v, ...patch }))
+
+  // The merchant model (running in the browser) fills in the category while the merchant is typed, until the
+  // person picks one themselves. `suggested` is the code it filled in; '' when it filled nothing or they chose.
+  const [suggested, setSuggested] = useState('')
+  const suggestedRef = useRef('')
+  suggestedRef.current = suggested
+  const optionIds = options.map((c) => c.id).join(',')
+  useEffect(() => {
+    const name = values.merchant.trim()
+    if (values.type !== 'EXPENSE' || name.length < 3) return undefined
+    let active = true
+    const timer = setTimeout(async () => {
+      const hit = await suggestCategoryCode(name)
+      if (!active) return
+      const code = hit && optionIds.split(',').includes(hit.code) ? hit.code : ''
+      setValues((v) => {
+        const own = v.categoryId && v.categoryId !== suggestedRef.current // the person's own choice wins
+        if (own) return v
+        return v.categoryId === code ? v : { ...v, categoryId: code }
+      })
+      setSuggested(code)
+    }, 400)
+    return () => {
+      active = false
+      clearTimeout(timer)
+    }
+  }, [values.merchant, values.type, optionIds])
 
   // The currency can change while the form is open (Settings in another tab): revalidate a typed amount
   const [checkedCurrency, setCheckedCurrency] = useState(currency)
@@ -173,7 +201,14 @@ function TransactionForm({ txn, type, categories, onSubmit, onClose }) {
       {field(
         'categoryId',
         f.categoryOptional,
-        <select {...aria('categoryId')} value={values.categoryId} onChange={(e) => set({ categoryId: e.target.value })}>
+        <select
+          {...aria('categoryId')}
+          value={values.categoryId}
+          onChange={(e) => {
+            setSuggested('')
+            set({ categoryId: e.target.value })
+          }}
+        >
           <option value="">{f.categoryPlaceholder}</option>
           {options.map((c) => (
             <option key={c.id} value={c.id}>
@@ -183,6 +218,7 @@ function TransactionForm({ txn, type, categories, onSubmit, onClose }) {
         </select>,
         errors.categoryId,
       )}
+      {suggested && values.categoryId === suggested && <p className="form-note">{f.categorySuggested}</p>}
       {!editing &&
         field('date', f.date, <input {...aria('date')} type="date" max={today} value={values.date} onChange={(e) => set({ date: e.target.value })} />, errors.date)}
       {!editing && <p className="form-note">{f.currencyNote(currency)}</p>}

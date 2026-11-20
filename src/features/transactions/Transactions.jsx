@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { CircleAlert, Inbox, Plus, SearchX } from 'lucide-react'
 import ConfirmDialog from '../../components/ui/ConfirmDialog.jsx'
@@ -75,6 +75,40 @@ export default function Transactions() {
     const dir = field === sortField && sortDir === 'desc' ? 'asc' : 'desc'
     setFilters({ sort: `${field},${dir}` })
   }
+
+  // /transactions?txn=<id> (a notification about that transaction) opens its details, whatever page or filter the
+  // list is on. The param is removed once handled, so a refresh or Back does not reopen it.
+  const txnId = searchParams.get('txn')
+  useEffect(() => {
+    if (!txnId) return undefined
+    let active = true
+    const clearParam = () => {
+      setSearchParams(
+        (current) => {
+          const next = new URLSearchParams(current)
+          next.delete('txn')
+          return next
+        },
+        { replace: true },
+      )
+    }
+    transactionApi
+      .getTransaction(txnId)
+      .then((txn) => {
+        if (active) setDetails(txn)
+      })
+      .catch((err) => {
+        if (active) toast.error(err?.response?.status === 404 ? t.toasts.notFound : getErrorInfo(err, 'transactions').message)
+      })
+      .finally(() => {
+        if (active) clearParam()
+      })
+    return () => {
+      active = false
+    }
+    // toast and setSearchParams are stable enough; the effect must only run when the id in the URL changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [txnId])
 
   const openDetails = useCallback((txn) => setDetails(txn), [])
   const openEdit = useCallback((txn) => setForm({ mode: 'edit', txn }), [])

@@ -91,6 +91,12 @@ export async function createTransaction(data) {
 }
 
 // PATCH only supports the category and the merchant
+// One transaction by id (a notification points at it); 404 when it was deleted
+export async function getTransaction(id) {
+  const { data } = await api.get(`${BASE}/${encodeURIComponent(id)}`)
+  return toTransaction(data)
+}
+
 export async function updateTransaction(id, { categoryId, merchant }) {
   const { data } = await api.patch(`${BASE}/${id}`, { category: categoryId, merchant })
   return toTransaction(data)
